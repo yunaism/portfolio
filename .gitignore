@@ -1,0 +1,6 @@
+.DS_Store
+tmp_*
+*.MOV
+do_git.sh
+refs/
+design/
