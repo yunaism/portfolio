@@ -102,7 +102,7 @@
       </div>
       <span class="meta">ENERDOT · Data science intern · Seoul · May–Jul 2026</span>
       <h3>Forecasts that don't cheat</h3>
-      <p>Airflow/MySQL pipelines for electricity-market forecasting. Removed features not yet published at forecast time, fixed a silent lag bug across missing timestamps, and corrected early solar results inflated by shuffled splits. Day-ahead SMP forecast MAE ~14% lower than a 7-day persistence baseline on a two-month held-out set.</p>
+      <p>Airflow/MySQL pipelines for electricity-market forecasting. Removed features not yet published at forecast time, fixed a silent lag bug across missing timestamps, and made the Bronze/Silver loads idempotent. Day-ahead SMP forecast MAE ~14% lower than a 7-day persistence baseline on a two-month held-out set.</p>
       <span class="part">My part: Airflow wrapper, availability probe, preprocessing, retraining gate and site mapping; the forecasting framework already existed.</span>
       <div class="more"><a href="enerdot.html">Case study →</a></div>
     </article>
@@ -138,10 +138,10 @@
     </div>
     <div class="check">
       <span class="where">ENERDOT</span>
-      <h3>Solar results that looked too good</h3>
-      <dl><dt>found</dt><dd>Early accuracy was inflated.</dd>
-      <dt>how</dt><dd>Traced it to a shuffled split and a training window overlapping the evaluation period.</dd>
-      <dt>fixed</dt><dd>Re-split by time and used the honest numbers as the baseline.</dd></dl>
+      <h3>A weekly lag that wasn't a week</h3>
+      <dl><dt>found</dt><dd>With gaps in the hourly data, shifting 168 rows no longer meant 168 hours back, so a weekly lag feature silently pointed at the wrong past values.</dd>
+      <dt>how</dt><dd>Checked lags against timestamps instead of row positions.</dd>
+      <dt>fixed</dt><dd>Reindexed every source to a common hourly axis, added unit tests, and made retraining halt on gaps of 168 hours or more.</dd></dl>
     </div>
   </div>
 </section>
