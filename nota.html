@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nota AI · Yuna Sim</title>
+<meta name="description" content="Research internship at Nota AI: reproducing a 3D-aware vision-language-action policy and making its experiments trustworthy.">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav aria-label="Main">
+  <a href="./" style="color:var(--muted)">yunasim.dev</a>
+  <div class="links"><a href="./#work">Work</a><a href="./#research">Research</a><a href="./#cv">CV</a><a href="#contact">Contact</a></div>
+</nav>
+
+<main class="article">
+  <p class="meta">Nota AI · Research intern · Berlin · Jul–Oct 2026</p>
+  <h1>Making VLA experiments trustworthy</h1>
+  <p class="lede">I reproduced a VGGT-based 3D-aware vision-language-action (VLA) policy as the team baseline, then spent much of the internship making sure the experiments built on it could be trusted.</p>
+  <p class="part">My part: reproduction, experiment-integrity tooling, rollout recording and failure analysis.</p>
+
+  <figure>
+    <video src="images/nota/depth_strip.mp4" poster="images/nota/depth_strip.jpg" autoplay muted loop playsinline aria-label="A robot arm reaching toward mugs, shown as the camera image, the depth the model predicts, and where it is unsure."></video>
+    <img class="poster-fallback" src="images/nota/depth_strip.jpg" alt="" style="display:none">
+    <figcaption>Left to right: what the camera sees, how far the model thinks things are, where it is unsure.</figcaption>
+  </figure>
+
+  <h2>problem</h2>
+  <p>The team wanted to test whether 3D information helps a VLA policy act. A comparison like that is only as good as the baseline and the pipeline underneath it: if two runs differ in something other than the method, the result says nothing about the method.</p>
+
+  <h2>what I did</h2>
+  <ul>
+    <li><strong>Reproduction.</strong> Reproduced a VGGT-based 3D-aware VLA policy (VGA) as the team baseline. I reconciled the paper against the official VGGT code, resolved unspecified details with the authors, and implemented the proprioception encoder, action/proprio normalization and image augmentation with unit tests. Components were validated against the OpenVLA-OFT reference implementation.</li>
+    <li><strong>Experiment-integrity tooling.</strong> Pre-training checks of the instantiated model (trainable parameters, config flags, dtype) against the baseline; SHA-256-verified source snapshots per run; evaluation guards comparing language caches, simulator assets and package hashes against a reference run; save → reload → output checks for checkpoints.</li>
+    <li><strong>Evaluation discipline.</strong> Measured evaluation variance across training seeds, sampling seeds and checkpoints before comparing methods, and pre-registered decision criteria in git before looking at results.</li>
+    <li><strong>Rollout recording.</strong> Added recording to LIBERO evaluation: per-step multi-view RGB, robot state, and predicted vs. executed actions.</li>
+    <li><strong>Method experiments.</strong> Ported a discrete diffusion action decoder (DD-VLA style) and compared it with the regression head and several training variants on LIBERO, with multi-seed baseline evaluation. Ran auxiliary-learning (current vs. future depth) and geometry-conditioning experiments, using input-ablation diagnostics to test whether the added 3D signals actually influenced predicted actions.</li>
+    <li><strong>Documentation.</strong> Wrote up 19 decision criteria, 9 paper reviews, topic reports and a handoff guide for the team.</li>
+  </ul>
+
+  <h2>what I found</h2>
+  <p>Several defects had invalidated results before anyone noticed:</p>
+  <ul>
+    <li>a language-embedding cache mismatch caused by a library version difference, so two runs compared as equals were not equal. Their configs looked identical: cached embeddings bypass the language model, so the version difference never showed up in config;</li>
+    <li>a depth-token ordering bug: a reshape grouped neighbouring depth values into one token instead of pairing each cell's depth with its confidence. Attention and gradient analysis missed it; a simple statistic caught it, because both input channels had the same mean. It is fixed and covered by 32 regression tests;</li>
+    <li>a config flag that silently never reached its module;</li>
+    <li>evaluation-order dependence in LIBERO.</li>
+  </ul>
+  <p>Using the rollout recordings, replay and interventions on approach pose and object layout localized manipulation failures to the pre-contact approach phase, before the gripper touches the object.</p>
+
+  <figure>
+    <img src="images/nota/mug_approach_original_6_cases.png" alt="Two plots of gripper trajectories relative to a mug, a top view and a side view, for six episodes; successful approaches are solid lines and failed ones are dashed." loading="lazy" width="1440" height="664">
+    <figcaption>Gripper approach paths around a mug for six recorded episodes, cup-centred top and side views. Solid lines succeeded, dashed lines failed.</figcaption>
+  </figure>
+
+  <h2>limitations and open questions</h2>
+  <ul>
+    <li>Quantitative LIBERO results are not published here.</li>
+    <li>I did not train or evaluate OpenVLA or OFT myself. Reproduction components were checked against the OFT reference through intermediate-value comparison and ground-truth action replay.</li>
+    <li>Performance dropped late in training in some runs. The root cause is unresolved.</li>
+    <li>Where a conclusion was not confirmed, it was recorded as unconfirmed rather than folded into the results.</li>
+  </ul>
+</main>
+
+<footer id="contact">
+  <span>Yuna Sim · Berlin</span>
+  <div class="links">
+    <a href="mailto:syna02178@gmail.com">Email</a><a href="https://www.linkedin.com/in/yunasim/">LinkedIn</a><a href="https://github.com/yunaism">GitHub</a><a href="assets/YunaSim_CV.pdf">CV (PDF)</a><a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welfare Compass · Yuna Sim</title>
+<meta name="description" content="Welfare Compass: a welfare-policy assistant for 300+ programs, from a hackathon RAG MVP to a team-built LangGraph ReAct agent.">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav aria-label="Main">
+  <a href="./" style="color:var(--muted)">yunasim.dev</a>
+  <div class="links"><a href="./#work">Work</a><a href="./#research">Research</a><a href="./#cv">CV</a><a href="#contact">Contact</a></div>
+</nav>
+
+<main class="article">
+  <p class="meta">Welfare Compass · Hackathon finalist → team iteration · 2025–26</p>
+  <h1>A welfare-policy assistant for 300+ programs</h1>
+  <p class="lede">A question-answering assistant for welfare policies. It started as my hackathon RAG prototype and was later extended by the team into a LangGraph ReAct agent.</p>
+  <p class="part">My part: led the idea and built the MVP's retrieval and generation; in the agent version, the LLM agent and user-profile memory. Teammates owned frontend, backend and MCP.</p>
+  <p><a href="https://welfare-compass-v2.vercel.app/">Live demo →</a><!-- TODO(yuna): repo link --></p>
+
+  <figure aria-hidden="true">
+    <div style="aspect-ratio:16/9;background:var(--placeholder);border:1px dashed var(--rule)"><!-- TODO(yuna): screenshot of the agent answering a question --></div>
+  </figure>
+
+  <h2>problem</h2>
+  <p>Information about 300+ welfare programs is spread across many policies, each with its own eligibility rules. The aim was an assistant that answers questions about these programs and checks whether a user is likely to qualify.</p>
+
+  <h2>phase 1 · Seoul AI Hackathon MVP · Nov–Dec 2025</h2>
+  <ul>
+    <li>Led the project idea and built the core RAG retrieval and generation logic, using LangChain, ChromaDB and the GPT API.</li>
+    <li>Built the MVP in Streamlit. It reached the hackathon finals (top 20 of 181 teams).</li>
+  </ul>
+
+  <h2>phase 2 · team iteration · 2025–26</h2>
+  <ul>
+    <li>The team extended the MVP into a ReAct-style agent with LangGraph, in which an LLM (GPT-4.1-mini) routes between three tools: information extraction, hybrid policy retrieval and rule-based eligibility checks.</li>
+    <li>My part was the LLM agent and user-profile memory: stored user information is injected into the agent's system prompt per session, which addresses the prebuilt agent's lack of state across turns.</li>
+    <li>Teammates owned the frontend, the backend and the MCP server.</li>
+  </ul>
+
+  <h2>limitations and open questions</h2>
+  <ul>
+    <li>The agent uses LangGraph's prebuilt ReAct agent rather than a custom state graph. The workflow was close to linear, so the prebuilt agent was sufficient.</li>
+    <li>Some question types trigger several sequential LLM calls, which makes answers slow. A custom state graph or parallel tool calls could help; neither has been implemented.</li>
+  </ul>
+</main>
+
+<footer id="contact">
+  <span>Yuna Sim · Berlin</span>
+  <div class="links">
+    <a href="mailto:syna02178@gmail.com">Email</a><a href="https://www.linkedin.com/in/yunasim/">LinkedIn</a><a href="https://github.com/yunaism">GitHub</a><a href="assets/YunaSim_CV.pdf">CV (PDF)</a><a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

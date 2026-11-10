@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENERDOT · Yuna Sim</title>
+<meta name="description" content="Data science internship at ENERDOT: electricity-market forecasting pipelines with point-in-time features and honest evaluation.">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav aria-label="Main">
+  <a href="./" style="color:var(--muted)">yunasim.dev</a>
+  <div class="links"><a href="./#work">Work</a><a href="./#research">Research</a><a href="./#cv">CV</a><a href="#contact">Contact</a></div>
+</nav>
+
+<main class="article">
+  <p class="meta">ENERDOT · Data science intern · Seoul · May–Jul 2026</p>
+  <h1>Forecasts that don't cheat</h1>
+  <p class="lede">Data pipelines and evaluation for electricity-market forecasting, built so that a model only sees what would really have been available at forecast time.</p>
+  <p class="part">My part: Airflow wrapper, availability probe, preprocessing, retraining gate and site mapping. The forecasting framework, including candidate model selection, already existed.</p>
+
+  <figure>
+    <svg viewBox="0 0 480 300" role="img" aria-label="Pipeline: KPX API, availability probe every 30 minutes, Bronze and Silver layers, point-in-time features, per-site model selection, retraining gate, fallback to the previous model, model hash logged to MLflow." style="width:100%;height:auto;display:block;border:1px solid var(--rule)">
+      <rect width="480" height="300" fill="#FFFFFF"/>
+      <g font-family="Geist Mono, monospace" font-size="11" fill="#141414">
+        <g stroke="#141414" stroke-width="1" fill="#F7F6F3">
+          <rect x="24" y="34" width="120" height="44"/>
+          <rect x="180" y="34" width="120" height="44"/>
+          <rect x="336" y="34" width="120" height="44"/>
+          <rect x="336" y="128" width="120" height="44"/>
+          <rect x="180" y="128" width="120" height="44"/>
+          <rect x="24" y="128" width="120" height="44"/>
+        </g>
+        <rect x="24" y="222" width="120" height="44" fill="#2D6A6A"/>
+        <rect x="180" y="222" width="120" height="44" fill="none" stroke="#141414" stroke-dasharray="4 3"/>
+        <rect x="336" y="222" width="120" height="44" fill="none" stroke="#141414"/>
+        <text x="84" y="53" text-anchor="middle">KPX API</text>
+        <text x="84" y="68" text-anchor="middle" fill="#5C5850" font-size="10">market data</text>
+        <text x="240" y="53" text-anchor="middle">availability probe</text>
+        <text x="240" y="68" text-anchor="middle" fill="#5C5850" font-size="10">every 30 min</text>
+        <text x="396" y="53" text-anchor="middle">Bronze → Silver</text>
+        <text x="396" y="68" text-anchor="middle" fill="#5C5850" font-size="10">Airflow · MySQL</text>
+        <text x="396" y="147" text-anchor="middle">point-in-time</text>
+        <text x="396" y="162" text-anchor="middle">features</text>
+        <text x="240" y="147" text-anchor="middle">per-site model</text>
+        <text x="240" y="162" text-anchor="middle">selection</text>
+        <text x="84" y="147" text-anchor="middle">retraining gate</text>
+        <text x="84" y="162" text-anchor="middle" fill="#5C5850" font-size="10">val / train MAE</text>
+        <text x="84" y="248" text-anchor="middle" fill="#F7F6F3">pass → new model</text>
+        <text x="240" y="241" text-anchor="middle">fail → fallback</text>
+        <text x="240" y="256" text-anchor="middle" fill="#5C5850" font-size="10">previous model</text>
+        <text x="396" y="241" text-anchor="middle">model hash</text>
+        <text x="396" y="256" text-anchor="middle" fill="#5C5850" font-size="10">→ MLflow</text>
+        <g stroke="#141414" stroke-width="1" fill="none">
+          <path d="M144 56 H176"/><path d="M300 56 H332"/><path d="M396 78 V124"/>
+          <path d="M336 150 H304"/><path d="M180 150 H148"/>
+          <path d="M84 172 V218"/><path d="M144 186 H240 V218"/><path d="M144 244 C 160 290, 380 290, 396 266"/>
+        </g>
+        <g fill="#141414">
+          <path d="M176 56 l-6 -3 v6z"/><path d="M332 56 l-6 -3 v6z"/><path d="M396 124 l-3 -6 h6z"/>
+          <path d="M304 150 l6 -3 v6z"/><path d="M148 150 l6 -3 v6z"/>
+          <path d="M84 218 l-3 -6 h6z"/><path d="M240 218 l-3 -6 h6z"/>
+        </g>
+      </g>
+    </svg>
+    <figcaption>Pipeline structure only. No company data.</figcaption>
+  </figure>
+
+  <h2>problem</h2>
+  <p>Forecasts of electricity-market prices (SMP) and solar generation were built on KPX market data. Two things can make a forecast look better than it is: features that would not yet have been published at prediction time, and evaluation splits that let the model see the future.</p>
+
+  <h2>what I did</h2>
+  <ul>
+    <li><strong>Pipelines.</strong> Airflow/MySQL ETL for KPX electricity-market data in Bronze and Silver layers, grouping Bronze → Silver per dataset and separating ETL, inference and evaluation DAGs by their actual input dependencies.</li>
+    <li><strong>Availability probe.</strong> A DAG that polled the KPX API every 30 minutes and logged five observed states (not available, partial, complete, rate-limited, error). This turned an undocumented publication time into measured data for scheduling.</li>
+    <li><strong>Point-in-time features.</strong> Removed a demand feature that was not yet published at forecast time, and filtered out weather forecasts issued after the prediction cutoff.</li>
+    <li><strong>Lag bug.</strong> A row-based <code>shift(168)</code> silently crossed missing timestamps. I reindexed all sources to a common hourly axis, added unit tests, and made retraining halt on gaps of 168 hours or more.</li>
+    <li><strong>Retraining path.</strong> Weekly retraining with a train–validation gap gate (MAE ratio) and automatic fallback to the previous model, logging model-file SHA-256 hashes to MLflow.</li>
+    <li><strong>Site mapping.</strong> Two ID systems shared the column name <code>plant_id</code>, so weather and solar sites were matched roughly 254 km apart. I replaced this with a haversine nearest-neighbour mapping across 24 solar sites, and fixed silent empty SQL queries caused by NaN/float IDs.</li>
+    <li><strong>Data layer.</strong> Post-DDL schema verification against <code>information_schema</code> and a partition-maintenance DAG.</li>
+    <li><strong>Documentation.</strong> 24 operational decision criteria, each with its verification source, for team reuse.</li>
+  </ul>
+
+  <h2>what I found</h2>
+  <ul>
+    <li>Early solar results were optimistic because of shuffled splits and a training period that overlapped the evaluation window. After re-splitting by time, the honest numbers became the baseline.</li>
+    <li>Solar: 6.70% nMAE-10 across 24 sites (≥90 kW) with validation-based per-site model selection (LightGBM, XGBoost, CatBoost, random forest, linear, pvlib), against 13.49% for a default-parameter pvlib physical baseline.</li>
+    <li>Jeju day-ahead SMP: MAE about 14% lower than a 7-day persistence baseline (14.52 → 12.53 KRW/kWh) on a two-month held-out test set.</li>
+  </ul>
+
+  <h2>limitations and open questions</h2>
+  <ul>
+    <li>The pvlib baseline uses library-default panel geometry and is not calibrated, so it is a weak physical reference.</li>
+    <li>For SMP, the best model on validation and the best on test were different, with a very small gap; the improvement is reported as approximate for that reason.</li>
+    <li>The gate threshold for retraining is a provisional heuristic. It has not been backtested.</li>
+    <li>A gap in the raw data was found by hand; range backfill and coverage auditing are not automated.</li>
+    <li>I designed a D+1 shadow-forecast ledger (predictions stored before actuals are published, evaluated afterwards). It is paused until it can be calibrated.</li>
+  </ul>
+</main>
+
+<footer id="contact">
+  <span>Yuna Sim · Berlin</span>
+  <div class="links">
+    <a href="mailto:syna02178@gmail.com">Email</a><a href="https://www.linkedin.com/in/yunasim/">LinkedIn</a><a href="https://github.com/yunaism">GitHub</a><a href="assets/YunaSim_CV.pdf">CV (PDF)</a><a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
