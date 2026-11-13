@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drama color study · Yuna Sim</title>
+<meta name="description" content="A viewer survey comparing the color grading of Money Heist and its Korean remake, using CIELAB color measurement and cross-applied grading.">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav aria-label="Main">
+  <a href="./" style="color:var(--muted)">yunasim.dev</a>
+  <div class="links"><a href="./#work">Work</a><a href="./#research">Research</a><a href="./#cv">CV</a><a href="#contact">Contact</a></div>
+</nav>
+
+<main class="article">
+  <p class="meta">May 2024 – Feb 2025 · research assistant, first author · with Prof. Hoyoung Yoon, Ewha Womans University · <a href="https://doi.org/10.37727/jkdas.2025.27.1.315">paper</a></p>
+  <h1>Color grading in a drama and its remake</h1>
+  <p class="lede">Do viewers prefer the color grading of a Korean remake over the original, and is that preference about the colors or about who is watching?</p>
+
+  <h2>problem</h2>
+  <p>Color grading is a defining visual element of Korean dramas, but earlier research had two blind spots. Some studies compared the colors of different dramas without connecting them to what viewers prefer. Others measured preference with artificially shifted colors that had nothing to do with real content.</p>
+  <p>This study joins the two. It takes the actual color properties of the Spanish original <em>Money Heist</em> (La Casa de Papel) and its Korean remake <em>Money Heist: Joint Economic Area</em>, applies each version's grading to the other's images, and asks viewers which they prefer. Because the same scene appears in both gradings, color is the only thing that changes.</p>
+
+  <p>The question has two parts. First, given the same scene, which grading do viewers pick? Second, if there is a preference, does it come from the colors themselves or from who the viewer is: their nationality, their streaming habits, or whether they had already seen one of the two versions?</p>
+
+  <h2>my part</h2>
+  <p>First author: research design, color analysis in CIELAB and HSV, survey design and statistical analysis, under the supervision of Prof. Hoyoung Yoon.</p>
+
+  <h2>approach</h2>
+  <p>The hard part was a fair comparison: isolating color grading from everything else in a scene. The study uses a six-stage pipeline.</p>
+  <figure>
+    <img src="images/drama-methodology.svg" alt="Six-stage pipeline: 1 keyframe extraction from the Spanish original (season 1, 11 episodes) and the Korean remake (part 1, 6 episodes); 2 image clustering with ConvNeXtLarge, 5 storylines by 10 clusters; 3 selection of 20 images, a character and a background scene per storyline; 4 dominant-color measurement in CIELAB and HSV; 5 cross-application of CIELAB values between versions; 6 a pairwise preference survey." loading="lazy">
+    <figcaption>Research pipeline, from keyframes to the preference survey.</figcaption>
+  </figure>
+  <ol>
+    <li><strong>Keyframes.</strong> Extracted keyframes from the Spanish original (season 1, 11 episodes) and the Korean remake (part 1, 6 episodes), and removed duplicate compositions by comparing image vectors.</li>
+    <li><strong>Clustering.</strong> Clustered frames with ImageNet-pretrained ConvNeXtLarge across 5 aligned storylines, 10 clusters each, so scenes are grouped by what they look like rather than by captions or metadata.</li>
+    <li><strong>Selection.</strong> Picked one character scene and one background scene per storyline, 20 images in total. Character and background images were kept apart because color works differently for each. Violent and shooting scenes were excluded.</li>
+    <li><strong>Measurement.</strong> Extracted dominant colors in CIELAB, for perceptual color differences, and in HSV, for saturation and brightness.</li>
+    <li><strong>Cross-application.</strong> Applied each drama's CIELAB L*a*b* values to the other version's images, so every scene exists with both Korean and Spanish grading. Unlike earlier studies that shifted RGB values by hand, this keeps the palettes viewers actually saw.</li>
+    <li><strong>Survey.</strong> Asked participants for pairwise preferences, and recorded nationality, number of OTT subscriptions and whether they had watched either version.</li>
+  </ol>
+  <figure>
+    <img src="images/drama-color.png" alt="Four scenes, each shown twice: on the left with the Korean remake's color grading, on the right with the Spanish original's grading. The scenes are a house exterior, two characters outside a building, a man on a phone, and a room with a stack of banknotes." loading="lazy" width="1380" height="1518">
+    <figcaption>Survey images: the same scenes with Korean remake color (left) and Spanish original color (right).</figcaption>
+  </figure>
+
+  <h2>results</h2>
+  <p>Evaluation scope: a pilot survey with 86 valid responses on pairwise comparisons of 20 images from one drama and its remake. <!-- CONFIRM n: the old page's nationality breakdown (Korean 40, Chinese 32, other 15) sums to 87, not 86. --></p>
+  <p>Across the full sample, images in the Korean remake's grading were preferred at 52.5%, versus 39.7% for the Spanish original's grading (t-test, p = 0.046). This held whichever version the source image came from.</p>
+  <h3>Color properties, not personal traits</h3>
+  <p>In a logit analysis, personal attributes (nationality, number of OTT subscriptions, and whether a participant had seen either version) did not consistently predict which grading they preferred. The preference followed the color properties of the images.</p>
+  <h3>Harmony of saturation</h3>
+  <p>The Korean grading is characterised less by contrast between light and dark than by saturation-based harmony: colors of similar chroma placed together. This is consistent with earlier comparisons of Korean and Japanese dramas by other researchers, and the Korean–Spanish comparison here points the same way.</p>
+  <figure>
+    <svg viewBox="0 0 300 300" role="img" aria-label="Six tones measured from the drama frames plotted in the CIELAB a-star b-star plane: five warm tones in the upper right, one teal alone in the lower left." style="width:100%;max-width:320px;height:auto;display:block">
+      <rect x="0.5" y="0.5" width="299" height="299" fill="#FFFFFF" stroke="#CFCBC2"/>
+      <line x1="150" y1="0" x2="150" y2="300" stroke="#E2DED6"/><line x1="0" y1="240" x2="300" y2="240" stroke="#E2DED6"/>
+      <g font-family="Geist Mono, monospace" font-size="10" fill="#5C5850">
+        <text x="294" y="232" text-anchor="end">+a* red</text><text x="6" y="232">−a* green</text>
+        <text x="144" y="14" text-anchor="end">+b* yellow</text><text x="144" y="292" text-anchor="end">−b* blue</text>
+      </g>
+      <circle cx="234" cy="72" r="17" fill="#C8966F"/>
+      <circle cx="180" cy="24" r="17" fill="#C3A165"/>
+      <circle cx="180" cy="120" r="17" fill="#8B7355"/>
+      <circle cx="150" cy="180" r="17" fill="#F3EAD8" stroke="#8F8A80"/>
+      <circle cx="150" cy="240" r="17" fill="#2C2C2C"/>
+      <circle cx="36" cy="276" r="17" fill="#2D6A6A"/>
+    </svg>
+    <figcaption>Six tones measured from the drama frames, plotted on the CIELAB a*b* plane. The teal used across this site is one of them.</figcaption>
+  </figure>
+
+  <h3>What the result does and does not say</h3>
+  <p>Because each scene was shown in both gradings, a preference for one grading cannot be explained by liking one show's scenes or actors more. That is the main reason for cross-applying measured colors instead of comparing frames from the two shows directly. What the study cannot separate is which part of the grading matters most; saturation harmony is the clearest difference in the measurements, but it was not manipulated on its own.</p>
+
+  <h2>limitations</h2>
+  <ul>
+    <li>This is a pilot: one drama and its remake, 20 images, and respondents who skew toward university students. More titles and a broader sample are needed before generalising.</li>
+    <li>Character and background scenes were selected separately, but preference was not analysed separately for each; that comparison would strengthen the conclusions.</li>
+    <li>The survey measured preference, not emotional response, so it says nothing about why a grading feels better.</li>
+    <li>The study does not support claims about viewer engagement or commercial outcomes beyond the preference result above.</li>
+  </ul>
+
+  <h2>links</h2>
+  <p>Yuna Sim, Hoyoung Yoon. "A Preference Analysis of Color: A Pilot Study Comparing the Drama Money Heist Original and Remake Versions." Journal of the Korean Data Analysis Society, Feb 2025. <a href="https://doi.org/10.37727/jkdas.2025.27.1.315">doi.org/10.37727/jkdas.2025.27.1.315</a></p>
+</main>
+
+<footer id="contact">
+  <span>Yuna Sim · Berlin</span>
+  <div class="links">
+    <a href="mailto:syna02178@gmail.com">Email</a><a href="https://www.linkedin.com/in/yunasim/">LinkedIn</a><a href="https://github.com/yunaism">GitHub</a><a href="assets/YunaSim_CV.pdf">CV (PDF)</a><a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

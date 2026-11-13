@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welding defect detection · Yuna Sim</title>
+<meta name="description" content="Welding defect detection with CycleGAN-generated synthetic images and YOLOv5s trained with two-stage transfer learning.">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav aria-label="Main">
+  <a href="./" style="color:var(--muted)">yunasim.dev</a>
+  <div class="links"><a href="./#work">Work</a><a href="./#research">Research</a><a href="./#cv">CV</a><a href="#contact">Contact</a></div>
+</nav>
+
+<main class="article">
+  <p class="meta">Jan–Jun 2023, paper Feb 2024 · AI research intern, first author · advisor Prof. Jewon Kang, Ewha Womans University · IPIU 2024</p>
+  <h1>Welding defect detection from synthetic images</h1>
+  <p class="lede">Real welding defect photographs are hard to get, so I built training data from public X-ray radiographs: CycleGAN translated them into camera-style RGB images, and a YOLOv5s detector was trained on them with two-stage transfer learning.</p>
+
+  <h2>problem</h2>
+  <p>Welding defects can degrade a product or, in severe cases, make it unsafe. Inspection today relies on visual checks and non-destructive testing, which are slow, costly and dependent on the individual inspector's experience.</p>
+  <p>Deep learning could automate detection, but it needs a large, well-labelled dataset, and for welding there is none in public: real defect images are restricted for security reasons and expensive to collect on the shop floor. Public X-ray radiographs of welds do exist, with labelled defects, but they are grayscale and look nothing like the RGB camera images used in inspection.</p>
+  <p>Since the real data could not be collected, the project manufactured a stand-in. The radiographs carry the geometry of real defects; the task was to move them into the visual domain of camera images and then train a detector that could cope with the remaining gap. Much of the work is therefore the data pipeline rather than the detector itself.</p>
+
+  <h2>my part</h2>
+  <p>First author: research design and all experiments, including the preprocessing chain, CycleGAN data generation, augmentation, and YOLOv5s training and evaluation.</p>
+
+  <h2>approach</h2>
+  <figure>
+    <img src="images/welding-methodology.svg" alt="Six-step pipeline: 1 data collection from the GD-Xray Welds and RIAWELC radiograph datasets; 2 preprocessing with contrast, median, Gaussian and wavelet filtering; 3 CycleGAN translation from X-ray to RGB for crack, porosity and spatter; 4 augmentation from 450 base images to 1,462 training images with flip, rotate and scale; 5 two-stage transfer learning from COCO to crater and crack datasets to welding defects; 6 detection and evaluation with YOLOv5s." loading="lazy">
+    <figcaption>Pipeline, from public radiographs to detection.</figcaption>
+  </figure>
+
+  <h3>1 · Data</h3>
+  <p>Weld radiographs came from two public datasets, GD-Xray Welds and RIAWELC. They contain labelled defects and serve as a stand-in for defect geometry.</p>
+
+  <h3>2 · Preprocessing</h3>
+  <p>Before translation, each radiograph went through contrast enhancement to bring out structure, then median filtering (edge-preserving noise removal), Gaussian filtering (overall noise reduction) and wavelet filtering (frequency-level refinement). The chain was chosen by comparing the outputs visually: contrast first, so faint structure survives, then the filters to remove noise that would otherwise confuse the generator.</p>
+  <div class="figs keep">
+    <figure><img src="images/preprocessing-original.png" alt="Original grayscale weld radiograph." loading="lazy"><p class="cap">original</p></figure>
+    <figure><img src="images/preprocessing-contrast.png" alt="Radiograph after contrast enhancement." loading="lazy"><p class="cap">contrast</p></figure>
+    <figure><img src="images/preprocessing-median.png" alt="Radiograph after median filtering." loading="lazy"><p class="cap">median</p></figure>
+    <figure><img src="images/preprocessing-gaussian.png" alt="Radiograph after Gaussian filtering." loading="lazy"><p class="cap">Gaussian</p></figure>
+    <figure><img src="images/preprocessing-wavelet.png" alt="Radiograph after wavelet filtering." loading="lazy"><p class="cap">wavelet</p></figure>
+    <figure><img src="images/preprocessing-all.png" alt="Radiograph with all four preprocessing steps applied." loading="lazy"><p class="cap">all applied</p></figure>
+  </div>
+  <p class="own">Each step on its own, and all four combined (the input to CycleGAN).</p>
+
+  <h3>3 · Synthetic images with CycleGAN</h3>
+  <p>CycleGAN translated the preprocessed radiographs into RGB images that look like camera photographs of welds, for three defect classes: crack, porosity and spatter. CycleGAN learns from unpaired examples, which mattered because no matched radiograph–photograph pairs exist.</p>
+  <div class="figs stack">
+    <figure><img src="images/crack-xray2rgb.png" alt="Crack: X-ray radiograph on the left, CycleGAN-generated RGB image on the right." loading="lazy" width="680" height="346"><p class="cap">crack</p></figure>
+    <figure><img src="images/porosity-xray2rgb.png" alt="Porosity: X-ray radiograph on the left, CycleGAN-generated RGB image on the right." loading="lazy"><p class="cap">porosity</p></figure>
+    <figure><img src="images/spatter-xray2rgb.png" alt="Spatter: X-ray radiograph on the left, CycleGAN-generated RGB image on the right." loading="lazy"><p class="cap">spatter</p></figure>
+  </div>
+  <p class="own">X-ray radiograph (left of each pair) and the CycleGAN output (right).</p>
+
+  <h3>4 · Augmentation</h3>
+  <p>The 450 base CycleGAN images were expanded with flips, rotations and scaling to 1,462 training images and 318 test images. All images are 256×256. <!-- CONFIRM: was augmentation done before or after the train/test split? If before, augmented copies of the same base image may sit in both sets. --></p>
+
+  <h3>5 · Two-stage transfer learning</h3>
+  <p>YOLOv5s was trained in three steps: pre-training on COCO for general visual features; intermediate fine-tuning on two datasets with similar shapes, a lunar crater dataset (circular depressions, like porosity) and a building-defects dataset of concrete cracks (like weld cracks); and final fine-tuning on the synthetic welding images. The intermediate stage gives the model a stepping stone between general images and welding defects.</p>
+  <p>The idea is cross-domain visual analogy: find shapes outside welding that look like welding defects, and let the model learn them before it sees the target domain. Jumping straight from COCO to synthetic welds asks the model to cross a large gap in one step; the intermediate datasets split that gap in two.</p>
+
+  <h3>6 · Evaluation</h3>
+  <p>Each training condition was evaluated with mAP at IoU 0.5, precision, recall and F1 on the same held-out synthetic test set, so the conditions are compared on equal terms.</p>
+
+  <h2>results</h2>
+  <p>All metrics are on a held-out set of 318 CycleGAN-generated images, not real welding photographs.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>training</th><th class="num">mAP@0.5</th><th class="num">precision</th><th class="num">recall</th><th class="num">F1</th></tr></thead>
+      <tbody>
+        <tr><td>from scratch</td><td class="num">78.4</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+        <tr><td>COCO transfer</td><td class="num">85.2</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+        <tr class="best"><td>two-stage</td><td class="num">87.5</td><td class="num">90.3</td><td class="num">85.1</td><td class="num">87.6</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="own">Percentages. Two-stage = COCO → crater/crack → welding. – = not reported on the original project page; see the paper.</p>
+  <p>Two-stage transfer learning gave the best result, 9.1 percentage points of mAP@0.5 above training from scratch. Experiments ran on NVIDIA RTX A6000 GPUs.</p>
+  <figure>
+    <img src="images/welding-detection.png" alt="Detections on four synthetic test images. Top row, COCO-only transfer: a spatter region labelled as crack and two low-confidence crack boxes. Bottom row, two-stage transfer: boxes labelled crack, porosity and spatter on the corresponding defects." loading="lazy" width="2000" height="1023">
+    <figcaption>Example detections on synthetic test images: COCO-only transfer (top) and two-stage transfer (bottom).</figcaption>
+  </figure>
+  <p>In the examples above, the COCO-only model mislabels a spatter region as a crack and draws low-confidence crack boxes over undamaged areas, while the two-stage model labels each defect with its own class. These are illustrations, not a measured error analysis.</p>
+  <p>The detector was trained without real defect photographs; validation on real images was out of scope.</p>
+
+  <h2>limitations</h2>
+  <ul>
+    <li>The test set is synthetic. Every metric above measures performance on CycleGAN images, so it says nothing yet about real welds. Real-image validation, and measuring the gap between synthetic and real images, is the next step.</li>
+    <li>There is no ablation isolating CycleGAN's contribution, and the preprocessing chain was chosen by visual comparison rather than by a metric.</li>
+    <li>The work was done without input from welding inspectors, so the metrics are technical, not tied to an inspection workflow.</li>
+  </ul>
+
+  <h2>links</h2>
+  <p>Yuna Sim, Jewon Kang. "Welding defect detection using synthetic data and object recognition algorithms." IPIU, Feb 2024.</p>
+</main>
+
+<footer id="contact">
+  <span>Yuna Sim · Berlin</span>
+  <div class="links">
+    <a href="mailto:syna02178@gmail.com">Email</a><a href="https://www.linkedin.com/in/yunasim/">LinkedIn</a><a href="https://github.com/yunaism">GitHub</a><a href="assets/YunaSim_CV.pdf">CV (PDF)</a><a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
