@@ -56,7 +56,7 @@
 
     <article class="tile">
       <div class="visual">
-        <svg viewBox="0 0 480 300" role="img" aria-label="Pipeline: KPX API, availability probe every 30 minutes, Bronze and Silver layers, point-in-time features, per-site model selection, retraining gate, fallback to the previous model, model hash logged to MLflow." style="width:100%;height:100%">
+        <svg viewBox="0 0 480 300" role="img" aria-label="Pipeline: KPX API, availability probe every 30 minutes, Bronze and Silver layers, point-in-time features, validation-based model selection, retraining gate, fallback to the previous model, model hash logged to MLflow." style="width:100%;height:100%">
           <rect width="480" height="300" fill="#FFFFFF"/>
           <g font-family="Geist Mono, monospace" font-size="11" fill="#141414">
             <g stroke="#141414" stroke-width="1" fill="#F7F6F3">
@@ -78,8 +78,8 @@
             <text x="396" y="68" text-anchor="middle" fill="#5C5850" font-size="10">Airflow · MySQL</text>
             <text x="396" y="147" text-anchor="middle">point-in-time</text>
             <text x="396" y="162" text-anchor="middle">features</text>
-            <text x="240" y="147" text-anchor="middle">per-site model</text>
-            <text x="240" y="162" text-anchor="middle">selection</text>
+            <text x="240" y="147" text-anchor="middle">model selection</text>
+            <text x="240" y="162" text-anchor="middle" fill="#5C5850" font-size="10">(validation-based)</text>
             <text x="84" y="147" text-anchor="middle">retraining gate</text>
             <text x="84" y="162" text-anchor="middle" fill="#5C5850" font-size="10">val / train MAE</text>
             <text x="84" y="248" text-anchor="middle" fill="#F7F6F3">pass → new model</text>
@@ -102,13 +102,13 @@
       </div>
       <span class="meta">ENERDOT · Data science intern · Seoul · May–Jul 2026</span>
       <h3>Forecasts that don't cheat</h3>
-      <p>Airflow/MySQL pipelines for electricity-market forecasting. Removed features not yet published at forecast time, fixed a silent lag bug across missing timestamps, and made the Bronze/Silver loads idempotent. Day-ahead SMP forecast MAE ~14% lower than a 7-day persistence baseline on a two-month held-out set.</p>
+      <p>Airflow/MySQL pipelines for electricity-market forecasting. Removed features not yet published at forecast time, fixed a silent lag bug across missing timestamps, and made the Bronze/Silver loads idempotent. Day-ahead SMP forecast: 13.7% lower MAE than a 168-hour (7-day) persistence baseline over a two-month evaluation (1,464 hours).</p>
       <span class="part">My part: Airflow wrapper, availability probe, preprocessing, retraining gate and site mapping; the forecasting framework already existed.</span>
       <div class="more"><a href="enerdot.html">Case study →</a></div>
     </article>
 
     <article class="tile">
-      <div class="visual ph" aria-hidden="true"><!-- TODO(yuna): screenshot of the agent answering a question --></div>
+      <div class="visual"><img class="shot" src="images/welfare-compass-v2-main.png" alt="Welfare Compass home screen in Korean, with policy categories and upcoming deadlines." loading="lazy" width="2278" height="1596"></div>
       <span class="meta">Welfare Compass · Hackathon finalist → team iteration · 2025–26</span>
       <h3>A welfare-policy assistant for 300+ programs</h3>
       <p>Started as a RAG MVP that reached the Seoul AI Hackathon finals (top 20 of 181 teams). The team later extended it into a LangGraph ReAct agent that routes between information extraction, hybrid policy retrieval and rule-based eligibility checks.</p>
@@ -166,7 +166,7 @@
         <li><span class="t">A Preference Analysis of Color: A Pilot Study Comparing the Drama Money Heist Original and Remake Versions</span><span class="s">Yuna Sim, Hoyoung Yoon · Journal of the Korean Data Analysis Society · Feb 2025</span></li>
         <li><span class="t">Global Illumination Estimation Using Local Patch Selection</span><span class="s">Yuna Sim, Hyejin Oh, Jewon Kang · KIBME · Nov 2024</span></li>
         <li><span class="t">Deep Learning-Based Fast Auto White Balancing Algorithm Development for Multi-View Video</span><span class="s">Hyejin Oh, Yuna Sim, Jewon Kang · KIBME · Jun 2024</span></li>
-        <li><span class="t">Welding defect detection using synthetic data and object recognition algorithms</span><span class="s">Yuna Sim, Jewon Kang · IPIU · Feb 2024</span></li>
+        <li><a class="t" href="welding.html">Welding defect detection using synthetic data and object recognition algorithms</a><span class="s">Yuna Sim, Jewon Kang · IPIU · Feb 2024</span></li>
       </ul>
     </div>
   </div>
@@ -193,8 +193,14 @@
       <span class="label">color study · 2025</span>
       <p class="q">How do viewers respond to a drama's original and remake color grades?</p>
       <p style="color:var(--text-2)">Six tones measured from drama frames, plotted in CIELAB. A viewer survey and statistical analysis, published in the Journal of the Korean Data Analysis Society. The teal used across this site is one of them.</p>
+      <p><a href="drama-color.html" style="color:var(--accent);font-weight:500">Read the study →</a></p>
     </div>
   </div>
+</section>
+
+<section id="other" aria-labelledby="other-h">
+  <h2 class="label" id="other-h">other projects</h2>
+  <p style="margin:0"><a href="https://github.com/yunaism/catchup">CatchUp</a> <span class="mono" style="color:var(--muted)">· solo · in progress</span></p>
 </section>
 
 <footer id="contact">
