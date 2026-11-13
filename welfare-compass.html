@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Welfare Compass · Yuna Sim</title>
-<meta name="description" content="Welfare Compass: a welfare-policy assistant for 300+ programs, from a hackathon RAG MVP to a team-built LangGraph ReAct agent.">
+<meta name="description" content="Welfare Compass: a conversational welfare-policy assistant, from a Seoul AI Hackathon RAG MVP to a team-built LangGraph ReAct agent.">
 <link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/site.css">
 </head>
@@ -17,37 +17,155 @@
 </nav>
 
 <main class="article">
-  <p class="meta">Welfare Compass · Hackathon finalist → team iteration · 2025–26</p>
-  <h1>A welfare-policy assistant for 300+ programs</h1>
-  <p class="lede">A question-answering assistant for welfare policies. It started as my hackathon RAG prototype and was later extended by the team into a LangGraph ReAct agent.</p>
-  <p class="part">My part: led the idea and built the MVP's retrieval and generation; in the agent version, the LLM agent and user-profile memory. Teammates owned frontend, backend and MCP.</p>
-  <p><a href="https://welfare-compass-v2.vercel.app/">Live demo →</a><!-- TODO(yuna): repo link --></p>
+  <p class="meta">Nov 2025 – present · LLM / RAG · hackathon team of 4, then team of 3 · <a href="https://welfare-compass-v2.vercel.app/">live demo</a> · <a href="https://github.com/yunaism/welfare-compass">hackathon code</a></p>
+  <h1>Welfare Compass</h1>
+  <p class="lede">A conversational assistant that helps Seoul residents find welfare programs they may qualify for, without forms or filters. It started as my hackathon RAG prototype and is now a team-built LangGraph agent.</p>
 
-  <figure aria-hidden="true">
-    <div style="aspect-ratio:16/9;background:var(--placeholder);border:1px dashed var(--rule)"><!-- TODO(yuna): screenshot of the agent answering a question --></div>
+  <figure>
+    <img src="images/welfare-compass-v2-main.png" alt="Welfare Compass home screen in Korean: category icons for jobs, housing, education, welfare and culture, and participation, a banner reading 'personalised welfare guidance for Seoul residents', and cards for upcoming policy deadlines." width="2278" height="1596">
+    <figcaption>Current team version (phase 2), home screen. The interface is in Korean.</figcaption>
   </figure>
 
   <h2>problem</h2>
-  <p>Information about 300+ welfare programs is spread across many policies, each with its own eligibility rules. The aim was an assistant that answers questions about these programs and checks whether a user is likely to qualify.</p>
+  <p>Seoul runs more than 300 welfare programs, spread across several platforms and described in dense administrative language. Each has its own rules on age, income, employment and residence, so finding out what you qualify for means reading through many of them one by one.</p>
+  <p>Existing services leave that work to the user. Seoul Talk, the city's KakaoTalk chatbot, answers with category menus and links. Bokjiro, the government welfare portal, asks users to tick filter boxes and then judge their own eligibility. Neither matches a person's situation against program conditions automatically.</p>
+  <p>Two figures framed the problem for us: 86% of people who did not apply said they assumed they were not eligible, and 48% of eligible citizens do not receive benefits they qualify for. In van Oorschot's model of welfare non-take-up, this first barrier is self-censorship: people rule themselves out before they ever look.</p>
+  <p class="own">Sources: 86%, Seoul Welfare Survey 2020. 48%, National Indicators, Ministry of Health and Welfare, 2024.</p>
 
-  <h2>phase 1 · Seoul AI Hackathon MVP · Nov–Dec 2025</h2>
+  <h2 class="phase">Phase 1 · Seoul AI Hackathon MVP</h2>
+  <p class="meta">Nov–Dec 2025 · preliminary round and 2-day finals · team of 4 · finalist, top 20 of 181 teams</p>
+
+  <h2>my part</h2>
+  <p>Led ideation; designed the RAG retrieval/generation logic and prompts; built the Streamlit MVP.</p>
+
+  <h2>approach</h2>
+  <h3>Talking to people first</h3>
+  <p>Before building anything, I held informal interviews with about 8 peers from my bootcamp cohort: Seoul residents in their late twenties, the age group many youth programs target. They were proxy users, not real welfare applicants, and the interviews were conversations rather than a structured study. Most had never applied for anything. Their reasons clustered into three patterns, and each one became a design decision.</p>
+  <div class="pairs">
+    <div class="pair">
+      <p><span class="k">finding</span>"I didn't know I was eligible." Participants assumed welfare was only for low-income households.</p>
+      <p><span class="k">decision</span>Proactive matching. The assistant extracts the user's situation from conversation and finds programs itself, so no prior knowledge is needed.</p>
+    </div>
+    <div class="pair">
+      <p><span class="k">finding</span>"I tried searching but gave up." Information was scattered across Seoul Talk, Bokjiro and district office websites.</p>
+      <p><span class="k">decision</span>One entry point. We curated about 100 Seoul welfare programs into a single searchable database.</p>
+    </div>
+    <div class="pair">
+      <p><span class="k">finding</span>"It's not worth the hassle." Long criteria and application forms outweighed an uncertain benefit.</p>
+      <p><span class="k">decision</span>Plain conversation. Users describe their situation in their own words and see what a program offers before committing to anything.</p>
+    </div>
+  </div>
+
+  <h3>The MVP</h3>
+  <p>The MVP is a Streamlit chat app over a manually curated database of ~100 curated Seoul welfare programs covering housing, employment, living costs and education. A user can type something like "I'm 27 and renting" and the assistant fills in a profile in the sidebar, asks for what is missing, and then recommends programs with short summary cards.</p>
+  <div class="figs">
+    <figure><img src="images/chat1.png" alt="Chat screen in Korean: the user says they are 27 and renting; the sidebar shows the extracted profile and the assistant asks follow-up questions." loading="lazy" width="1274" height="1666"><p class="cap">01 · profile extracted from chat</p></figure>
+    <figure><img src="images/chat2.png" alt="Chat screen in Korean: the assistant recommends three welfare programs as summary cards." loading="lazy" width="730" height="1528"><p class="cap">02 · recommended programs</p></figure>
+    <figure><img src="images/chat3.png" alt="Chat screen in Korean: the user asks about eligibility and how to apply, and the assistant gives step-by-step guidance." loading="lazy" width="600" height="1310"><p class="cap">03 · eligibility and how to apply</p></figure>
+  </div>
+
+  <h3>Retrieval and generation</h3>
+  <p>I chose retrieval-augmented generation over fine-tuning because welfare programs change often: with RAG, an update means refreshing documents, not retraining a model. LangChain orchestrates the flow: detect the user's intent, extract profile details, retrieve candidate programs, and generate an answer grounded only in the retrieved documents.</p>
+  <p>Dense vector search alone missed relevant programs when users phrased things differently from the policy text. A teammate contributed a BM25 keyword module, and we combined the two as dense + BM25 ensemble retrieval, so both meaning and exact terms count.</p>
+  <!-- CONFIRM FAISS vs ChromaDB: the old page and figure said FAISS, the evidence bank says ChromaDB. The vector store is deliberately unnamed here and in the figure. -->
+  <p>Early answers were inconsistent and repeated administrative jargon. I rewrote the prompts so answers stay grounded in retrieved documents and translate bureaucratic wording into everyday language, and checked them against the kinds of questions people actually asked.</p>
+  <figure>
+    <img src="images/welfare-architecture.svg" alt="Phase 1 architecture: the user talks to a Streamlit frontend; LangChain orchestrates retrieval over the welfare and FAQ databases using dense vector search and BM25 keyword search combined in an ensemble; the GPT API generates the answer." loading="lazy">
+    <figcaption>Phase 1 architecture. Dense and BM25 results are combined before generation.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/welfare-flow-en.svg" alt="Conversation flow: detect intent; in matching mode, extract user information and ask for more if it is insufficient, then match programs and render the top three as cards; in detail mode, answer the question directly; update chat history." loading="lazy">
+    <figcaption>Conversation flow: ask for missing details before matching, then show the top three programs.</figcaption>
+  </figure>
+  <p>After we reached the finals, part of the team wanted to build a full backend and frontend in the remaining time. I argued for finishing a working MVP first, built the Streamlit prototype overnight, and the team agreed to complete that rather than an ambitious but unfinished system.</p>
+
+  <h2>results</h2>
+  <p>Finalist at the Seoul AI Hackathon, top 20 of 181 teams. One judge's comment: <q>Good topic and planning; this seems like something citizens could actually use right away.</q></p>
+  <p>Evaluation scope: the result is a competition placement and judges' feedback. We did not run a retrieval benchmark or a user study, so the effect of adding BM25 was judged on test queries, not measured.</p>
+
+  <h2 class="phase">Phase 2 · Team iteration, LangGraph ReAct agent</h2>
+  <p class="meta">from Jan 2026 · team of 3 (backend, frontend, LLM/agent) · team project, in development</p>
+
+  <h2>why a second version</h2>
+  <p>Judges asked why users had to re-enter the same information every session, and that was fair: in the MVP every conversation started from zero. The MVP's pipeline also ran the same fixed sequence of LLM calls for every message, even a greeting, and it used search results to decide eligibility, so a qualifying program that ranked low in search could be missed.</p>
+
+  <h2>my part</h2>
   <ul>
-    <li>Led the project idea and built the core RAG retrieval and generation logic, using LangChain, ChromaDB and the GPT API.</li>
-    <li>Built the MVP in Streamlit. It reached the hackathon finals (top 20 of 181 teams).</li>
+    <li>The LLM/agent pipeline: a LangGraph orchestrator built on the prebuilt <code>create_react_agent</code>, running GPT-4.1-mini, that chooses tools per turn.</li>
+    <li>Session-keyed user-profile persistence: the stored profile is injected into the system prompt, because the prebuilt agent keeps no state across turns.</li>
+    <li>The <code>check_eligibility</code> tool as a factory, <code>create_check_eligibility(fetcher)</code>, so the data source is injected: the app passes a database query, tests pass a stub.</li>
+    <li>A canonical field-name dictionary in the orchestrator prompt, the single reference for every tool's inputs and outputs.</li>
+    <li>Two-track integration tests: real LLM with stub tools on every pull request, and real LLM with real tools on targeted runs.</li>
+  </ul>
+  <p class="own">Teammates' work: the MCP search server (BM25 with the Kiwi tokenizer, Chroma, BGE reranker, RRF fusion), the Django backend, the Next.js frontend and the map integration.</p>
+
+  <h2>approach</h2>
+  <p>The fixed pipeline became a ReAct agent with three tools. The orchestrator reads the conversation and decides what to call: it skips extraction when there is nothing new to extract and skips search for a follow-up question.</p>
+  <ul>
+    <li><code>extract_info</code> pulls profile fields such as age, region, income and employment from the conversation.</li>
+    <li><code>search_policies</code> handles comparison, FAQ and exploration queries through the team's search server. Query rewriting is embedded inside it: as a separate tool, the orchestrator sometimes skipped it, so now it always runs whenever search does.</li>
+    <li><code>check_eligibility</code> is a deterministic rule check over the policy database, with no LLM in the path, covering 300+ youth policies synced from the Youth Policy API. Matching no longer depends on search ranking.</li>
+  </ul>
+  <figure>
+    <svg viewBox="0 0 340 412" role="img" aria-label="Phase 2 architecture. Teammates' parts: Next.js frontend, Django REST API with PostgreSQL, the MCP search server and the policy database. My part: the LangGraph ReAct orchestrator on GPT-4.1-mini with the user profile in the system prompt, and its three tools: extract_info, search_policies with embedded query rewriting, and check_eligibility, a rule-only check with no LLM." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
+      <defs><marker id="wa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#5C5850"/></marker></defs>
+      <g font-family="Geist Mono, monospace" fill="#141414" font-size="10" text-anchor="middle">
+        <g fill="#F7F6F3" stroke="#CFCBC2" stroke-dasharray="3 2">
+          <rect x="10" y="10" width="320" height="40"/>
+          <rect x="10" y="66" width="320" height="40"/>
+          <rect x="184" y="246" width="146" height="62"/>
+          <rect x="184" y="316" width="146" height="56"/>
+        </g>
+        <g fill="#FFFFFF" stroke="#2D6A6A" stroke-width="1.5">
+          <rect x="10" y="122" width="320" height="56"/>
+          <rect x="24" y="196" width="140" height="40"/>
+          <rect x="24" y="256" width="140" height="44"/>
+          <rect x="24" y="316" width="140" height="44"/>
+        </g>
+        <text x="170" y="28" font-size="11">Next.js frontend</text><text x="170" y="42" font-size="9" fill="#5C5850">teammate</text>
+        <text x="170" y="84" font-size="11">Django REST API · PostgreSQL</text><text x="170" y="98" font-size="9" fill="#5C5850">teammate</text>
+        <text x="170" y="141" font-size="11">LangGraph ReAct orchestrator</text>
+        <text x="170" y="156" font-size="9" fill="#3A3732">GPT-4.1-mini · create_react_agent</text>
+        <text x="170" y="169" font-size="9" fill="#3A3732">stored profile in the system prompt</text>
+        <text x="94" y="214">extract_info</text><text x="94" y="228" font-size="9" fill="#3A3732">profile from chat</text>
+        <text x="94" y="275">search_policies</text><text x="94" y="289" font-size="9" fill="#3A3732">+ query rewrite</text>
+        <text x="94" y="335">check_eligibility</text><text x="94" y="349" font-size="9" fill="#3A3732">rules only, no LLM</text>
+        <text x="257" y="264">MCP search server</text><text x="257" y="278" font-size="9" fill="#5C5850">BM25 (Kiwi) + Chroma</text><text x="257" y="290" font-size="9" fill="#5C5850">BGE rerank · RRF</text><text x="257" y="302" font-size="9" fill="#5C5850">teammate</text>
+        <text x="257" y="334">policy DB</text><text x="257" y="348" font-size="9" fill="#5C5850">300+ youth policies</text><text x="257" y="362" font-size="9" fill="#5C5850">teammate</text>
+        <g stroke="#5C5850" fill="none" marker-end="url(#wa)">
+          <path d="M170 50 V64"/><path d="M170 106 V120"/>
+          <path d="M14 178 V338"/><path d="M14 216 H22"/><path d="M14 278 H22"/><path d="M14 338 H22"/>
+          <path d="M164 278 H182"/><path d="M164 338 H182"/>
+        </g>
+        <g text-anchor="start" font-size="9" fill="#3A3732">
+          <rect x="10" y="386" width="12" height="10" fill="#FFFFFF" stroke="#2D6A6A" stroke-width="1.5"/><text x="28" y="395">my part</text>
+          <rect x="100" y="386" width="12" height="10" fill="#F7F6F3" stroke="#CFCBC2" stroke-dasharray="3 2"/><text x="118" y="395">teammates</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>Phase 2 architecture. Eligibility matching and search are separate paths.</figcaption>
+  </figure>
+
+  <h3>Testing an agent without a live stack</h3>
+  <p>Full end-to-end tests, with a real LLM against real tools, are slow, costly and sensitive to API latency, but skipping them risks missing broken contracts between the orchestrator and its tools. So the tests run on two tracks: a real LLM with stub tools on every pull request, which checks orchestration logic and tool-calling contracts cheaply, and a real LLM with real tools on a small set of targeted scenarios. The factory-built eligibility tool is what makes the stub track possible without a database.</p>
+
+  <h3>One challenge: names that didn't match</h3>
+  <p>During the orchestrator redesign, field names in the design documents did not match the tools' actual output schemas, for example <code>region</code> vs <code>district</code> and <code>income</code> vs <code>income_level</code>. An LLM review of the documents missed it; a teammate's pull-request review caught it. The fix was a schema-check step in every task spec: before implementing, verify field names against the live tool output schemas. The canonical field dictionary in the orchestrator prompt came out of the same problem.</p>
+
+  <h2>results</h2>
+  <p>The agent, its three tools, profile persistence and the two-track test suite are implemented, and the team version is running as a <a href="https://welfare-compass-v2.vercel.app/">live demo</a>.</p>
+  <p>Evaluation scope: correctness is checked by integration tests of the orchestrator and tools. There is no evaluation dataset or user study yet, so I make no claims about answer quality or matching accuracy.</p>
+
+  <h2>limitations</h2>
+  <ul>
+    <li>The phase 1 interviews were with digitally fluent bootcamp peers. Real applicants likely face other barriers: complex language, trust and digital literacy.</li>
+    <li>Neither version has been evaluated on a labelled dataset; retrieval quality and recommendation accuracy are unmeasured.</li>
+    <li>The agent uses the prebuilt ReAct agent rather than a custom graph. Some question types trigger several sequential LLM calls, which makes answers slow.</li>
+    <li>Phase 2 is a team project in development, not a finished service.</li>
   </ul>
 
-  <h2>phase 2 · team iteration · 2025–26</h2>
-  <ul>
-    <li>The team extended the MVP into a ReAct-style agent with LangGraph, in which an LLM (GPT-4.1-mini) routes between three tools: information extraction, hybrid policy retrieval and rule-based eligibility checks.</li>
-    <li>My part was the LLM agent and user-profile memory: stored user information is injected into the agent's system prompt per session, which addresses the prebuilt agent's lack of state across turns.</li>
-    <li>Teammates owned the frontend, the backend and the MCP server.</li>
-  </ul>
-
-  <h2>limitations and open questions</h2>
-  <ul>
-    <li>The agent uses LangGraph's prebuilt ReAct agent rather than a custom state graph. The workflow was close to linear, so the prebuilt agent was sufficient.</li>
-    <li>Some question types trigger several sequential LLM calls, which makes answers slow. A custom state graph or parallel tool calls could help; neither has been implemented.</li>
-  </ul>
+  <h2>links</h2>
+  <p><a href="https://welfare-compass-v2.vercel.app/">Live demo (phase 2)</a> · <a href="https://github.com/yunaism/welfare-compass">Hackathon code (phase 1)</a></p>
 </main>
 
 <footer id="contact">

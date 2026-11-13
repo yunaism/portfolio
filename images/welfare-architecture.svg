@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" font-family="Inter, -apple-system, sans-serif">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap');
-  </style>
+    </style>
   <defs>
     <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
       <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.06"/>
@@ -43,7 +42,7 @@
 
   <!-- DATA SOURCES — centered: left col x=410–530, right col x=610–730, margins=50px each -->
 
-  <!-- FAQ DB (above FAISS, center x=470) -->
+  <!-- FAQ DB (above dense, center x=470) -->
   <rect x="410" y="95" width="120" height="36" rx="4" fill="#F8F8F6" stroke="#C5C0BA" stroke-width="1.3" filter="url(#shadow)"/>
   <text x="470" y="118" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="500">FAQ DB</text>
 
@@ -51,15 +50,15 @@
   <rect x="610" y="95" width="120" height="36" rx="4" fill="#F8F8F6" stroke="#C5C0BA" stroke-width="1.3" filter="url(#shadow)"/>
   <text x="670" y="118" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="500">Welfare DB</text>
 
-  <!-- Arrow: FAQ DB → FAISS (vertical down) -->
+  <!-- Arrow: FAQ DB → dense (vertical down) -->
   <line x1="470" y1="131" x2="470" y2="163" stroke="#B5B0AA" stroke-width="1.5" marker-end="url(#arrow)"/>
 
   <!-- Arrow: Welfare DB → BM25 (vertical down) -->
   <line x1="670" y1="131" x2="670" y2="163" stroke="#B5B0AA" stroke-width="1.5" marker-end="url(#arrow)"/>
 
-  <!-- FAISS (center x=470) -->
+  <!-- dense (center x=470) -->
   <rect x="410" y="173" width="120" height="46" rx="6" fill="#FFFFFF" stroke="#2D6A6A" stroke-width="1.2"/>
-  <text x="470" y="195" text-anchor="middle" fill="#2D6A6A" font-size="12" font-weight="600">FAISS</text>
+  <text x="470" y="195" text-anchor="middle" fill="#2D6A6A" font-size="12" font-weight="600">Dense</text>
   <text x="470" y="210" text-anchor="middle" fill="#8A8A8A" font-size="10">Vector Search</text>
 
   <!-- BM25 (center x=670) -->
@@ -67,7 +66,7 @@
   <text x="670" y="195" text-anchor="middle" fill="#2D6A6A" font-size="12" font-weight="600">BM25</text>
   <text x="670" y="210" text-anchor="middle" fill="#8A8A8A" font-size="10">Keyword Search</text>
 
-  <!-- Arrow: FAISS → Ensemble (vertical down) -->
+  <!-- Arrow: dense → Ensemble (vertical down) -->
   <line x1="470" y1="219" x2="470" y2="255" stroke="#B5B0AA" stroke-width="1.5" marker-end="url(#arrow)"/>
 
   <!-- Arrow: BM25 → Ensemble (vertical down) -->
@@ -76,7 +75,7 @@
   <!-- ENSEMBLE RETRIEVAL (x=410–730, center x=570) -->
   <rect x="410" y="265" width="320" height="50" rx="6" fill="#FFFFFF" stroke="#2D6A6A" stroke-width="1.5"/>
   <text x="570" y="286" text-anchor="middle" fill="#1A1A1A" font-size="12" font-weight="600">Ensemble Retrieval</text>
-  <text x="570" y="304" text-anchor="middle" fill="#8A8A8A" font-size="10">FAISS (semantic) + BM25 (keyword)</text>
+  <text x="570" y="304" text-anchor="middle" fill="#8A8A8A" font-size="10">Dense (semantic) + BM25 (keyword)</text>
 
   <!-- Arrow: Ensemble → GPT API (vertical down) -->
   <line x1="570" y1="315" x2="570" y2="415" stroke="#B5B0AA" stroke-width="1.5" marker-end="url(#arrow)"/>
