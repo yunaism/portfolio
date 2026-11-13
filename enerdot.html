@@ -79,13 +79,14 @@
     <li><strong>Point-in-time features.</strong> Removed a demand feature that was not yet published at forecast time, and filtered out weather forecasts issued after the prediction cutoff.</li>
     <li><strong>Lag bug.</strong> A row-based <code>shift(168)</code> silently crossed missing timestamps. I reindexed all sources to a common hourly axis, added unit tests, and made retraining halt on gaps of 168 hours or more.</li>
     <li><strong>Retraining path.</strong> Weekly retraining with a train–validation gap gate (MAE ratio) and automatic fallback to the previous model, logging model-file SHA-256 hashes to MLflow.</li>
-    <li><strong>Site mapping.</strong> Two ID systems shared the column name <code>plant_id</code>, so solar sites were matched to a weather station far from the actual site. I replaced this with a haversine nearest-neighbour mapping across 24 solar sites, and fixed silent empty SQL queries caused by NaN/float IDs.</li>
+    <li><strong>Site mapping.</strong> Two ID systems shared the column name <code>plant_id</code>, so the baseline site was getting forecast data from a different region, well beyond the forecast grid's resolution. I replaced this with a lat/lon nearest-site mapping across 24 solar sites, and fixed silent empty SQL queries caused by NaN/float IDs.</li>
     <li><strong>Data layer.</strong> Post-DDL schema verification against <code>information_schema</code> and a partition-maintenance DAG.</li>
     <li><strong>Documentation.</strong> 24 operational decision criteria, each with its verification source, for team reuse.</li>
   </ul>
 
   <h2>what I found</h2>
   <ul>
+    <li><strong>Too-good results.</strong> An early solar run scored far better than the baseline. Its training cutoff had been set after the start of the evaluation period, so evaluation data leaked into training. Re-run with the baseline's time-based cutoff, the honest numbers became the reference.</li>
     <li>Solar: 6.70% nMAE-10 for 24 sites combined (capacity ≥90 kW), choosing a model per site by validation error among LightGBM, linear regression and a pvlib physical model. LightGBM was chosen at 18 sites and linear regression at the 6 sites with the least data. The pvlib model alone, with default panel geometry, scored 13.49%.</li>
     <li>Jeju day-ahead SMP: MAE about 14% lower than a 7-day persistence baseline (14.52 → 12.53 KRW/kWh) on a two-month held-out test set.</li>
   </ul>
