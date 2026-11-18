@@ -128,3 +128,30 @@ footer .links{display:flex;flex-wrap:wrap;gap:20px}
 .own{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .own.mine{color:var(--accent)}
 .tile .visual img.shot{object-fit:cover;object-position:top}
+/* old-page components, restyled: highlight box, inline stats, methods lists, roadmap */
+.callout{margin:20px 0;padding:14px 16px;border-left:2px solid var(--accent);background:#FFFFFF}
+.callout p{margin:0;color:var(--text-2)}
+.facts{display:grid;gap:12px 24px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin:20px 0;padding:16px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.facts div{font-size:15px;color:var(--text-2)}
+.facts b{display:block;font-weight:500;color:var(--text)}
+.facts span{display:block;font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px}
+.chips{list-style:none;margin:8px 0 16px;padding:0;font-family:var(--mono);font-size:13px;color:var(--text-2);line-height:1.8}
+.chips li{display:inline;margin:0}
+.chips li + li::before{content:" · ";color:var(--muted)}
+.chips-group{display:grid;grid-template-columns:110px minmax(0,1fr);gap:4px 16px;margin:8px 0 16px}
+.chips-group dt{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:3px}
+.chips-group dd{margin:0}
+.chips-group .chips{margin:0}
+@media (max-width:560px){ .chips-group{grid-template-columns:minmax(0,1fr)} .chips-group dt{padding-top:8px} }
+.steps{list-style:none;padding:0;margin:16px 0;counter-reset:s}
+.steps > li{counter-increment:s;position:relative;padding:0 0 0 36px;margin:0 0 16px}
+.steps > li::before{content:counter(s);position:absolute;left:0;top:0;font-family:var(--mono);font-size:13px;color:var(--accent)}
+.steps h3{margin:0 0 4px;font-size:16px}
+.steps p{margin:0}
+.findings{list-style:none;padding:0;margin:16px 0}
+.findings > li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:0 12px;padding:14px 0;border-top:1px solid var(--rule)}
+.findings .n{font-family:var(--mono);font-size:13px;color:var(--accent);padding-top:3px}
+.findings h3{margin:0 0 6px;font-size:17px}
+.findings p{margin:0}
+.roadmap h3{margin-top:20px}
+.roadmap .k{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
