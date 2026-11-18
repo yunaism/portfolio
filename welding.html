@@ -40,6 +40,7 @@
 
   <h3>2 · Preprocessing</h3>
   <p>Before translation, each radiograph went through contrast enhancement to bring out structure, then median filtering (edge-preserving noise removal), Gaussian filtering (overall noise reduction) and wavelet filtering (frequency-level refinement). The chain was chosen by comparing the outputs visually: contrast first, so faint structure survives, then the filters to remove noise that would otherwise confuse the generator.</p>
+  <p>Preprocessing mattered for the synthetic data. Without it, CycleGAN's outputs carried visible artifacts; with the contrast-then-filter sequence, defect features stayed while noise dropped out. This was judged by eye, not measured, so it is a design observation rather than a result.</p>
   <div class="figs keep">
     <figure><img src="images/preprocessing-original.png" alt="Original grayscale weld radiograph." loading="lazy"><p class="cap">original</p></figure>
     <figure><img src="images/preprocessing-contrast.png" alt="Radiograph after contrast enhancement." loading="lazy"><p class="cap">contrast</p></figure>

@@ -27,9 +27,9 @@
   </figure>
 
   <h2>problem</h2>
-  <p>Seoul runs more than 300 welfare programs, spread across several platforms and described in dense administrative language. Each has its own rules on age, income, employment and residence, so finding out what you qualify for means reading through many of them one by one.</p>
+  <p>Seoul runs more than 300 welfare programs, spread across several platforms and described in dense administrative language. Each has its own criteria on age, income, employment status and residence, so finding out what you qualify for means reading through many of them one by one. With that many programs and rules, the amount of information becomes an obstacle in itself: people face too many options to judge and give up.</p>
   <p>Existing services leave that work to the user. Seoul Talk, the city's KakaoTalk chatbot, answers with category menus and links. Bokjiro, the government welfare portal, asks users to tick filter boxes and then judge their own eligibility. Neither matches a person's situation against program conditions automatically.</p>
-  <p>Two figures framed the problem for us: 86% of people who did not apply said they assumed they were not eligible, and 48% of eligible citizens do not receive benefits they qualify for. In van Oorschot's model of welfare non-take-up, this first barrier is self-censorship: people rule themselves out before they ever look.</p>
+  <p>Two figures framed the problem for us: 86% of people who did not apply said they assumed they were not eligible, and 48% of eligible citizens do not receive benefits they qualify for. In van Oorschot's model of welfare non-take-up, this first barrier is self-censorship: people rule themselves out before they ever look. Welfare Compass targets that threshold stage.</p>
   <p class="own">Sources: 86%, Seoul Welfare Survey 2020. 48%, National Indicators, Ministry of Health and Welfare, 2024.</p>
 
   <h2 class="phase">Phase 1 · Seoul AI Hackathon MVP</h2>
@@ -55,6 +55,10 @@
       <p><span class="k">decision</span>Plain conversation. Users describe their situation in their own words and see what a program offers before committing to anything.</p>
     </div>
   </div>
+  <p>We summarised the interviews in one persona to keep the team focused:</p>
+  <blockquote>Yujin, 27. Unemployed, single, renting alone in Seoul. "I figured welfare was for low-income families. I never thought someone like me could qualify for anything."</blockquote>
+  <p class="own">Persona: a composite drawn from the interviews, not a real participant.</p>
+  <p>The three findings pointed to one insight: the barrier is not whether information exists, but the effort it takes to find and process it. That is why we chose a conversational interface, which moves the burden from the user to the system.</p>
 
   <h3>The MVP</h3>
   <p>The MVP is a Streamlit chat app over a manually curated database of ~100 curated Seoul welfare programs covering housing, employment, living costs and education. A user can type something like "I'm 27 and renting" and the assistant fills in a profile in the sidebar, asks for what is missing, and then recommends programs with short summary cards.</p>
@@ -77,6 +81,7 @@
     <img src="images/welfare-flow-en.svg" alt="Conversation flow: detect intent; in matching mode, extract user information and ask for more if it is insufficient, then match programs and render the top three as cards; in detail mode, answer the question directly; update chat history." loading="lazy">
     <figcaption>Conversation flow: ask for missing details before matching, then show the top three programs.</figcaption>
   </figure>
+  <p class="own">Stack: Python, LangChain, dense vector search + BM25, GPT API, Streamlit.</p>
   <p>After we reached the finals, part of the team wanted to build a full backend and frontend in the remaining time. I argued for finishing a working MVP first, built the Streamlit prototype overnight, and the team agreed to complete that rather than an ambitious but unfinished system.</p>
 
   <h2>results</h2>
@@ -87,7 +92,26 @@
   <p class="meta">from Jan 2026 · team of 3 (backend, frontend, LLM/agent) · team project, in development</p>
 
   <h2>why a second version</h2>
-  <p>Judges asked why users had to re-enter the same information every session, and that was fair: in the MVP every conversation started from zero. The MVP's pipeline also ran the same fixed sequence of LLM calls for every message, even a greeting, and it used search results to decide eligibility, so a qualifying program that ranked low in search could be missed.</p>
+  <p>The hackathon result was encouraging, but two observations showed that the MVP had a design problem, not just rough edges.</p>
+  <p>First, the judges asked: <q>Why make users re-enter the same information every time?</q> Every session started from scratch: age, income and employment status were collected again through conversation. For a service meant to lower the barrier to welfare, that repetition was friction we had designed in ourselves.</p>
+  <p>Second, a look at the existing infrastructure: matching in Bokjiro, the official reference system, relied on civil servants manually reviewing applications. Even the authoritative solution did not match people to programs automatically, so there was a real gap to fill, not only a hackathon demo to polish.</p>
+  <p>Two technical limits pointed the same way. The MVP ran the same fixed sequence of LLM calls for every message, even a greeting. And it used search results to decide eligibility, so a qualifying program that ranked low in search could be silently missed.</p>
+  <p>The direction for phase 2: persistent user profiles with automatic matching, a ReAct agent that handles each query dynamically, a full web stack, and coverage widened beyond the curated hackathon set.</p>
+
+  <h3>From the MVP to the agent</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th></th><th>phase 1 · hackathon</th><th>phase 2 · team iteration</th></tr></thead>
+      <tbody>
+        <tr><td>architecture</td><td>Streamlit, fixed sequential pipeline</td><td>Django + Next.js, LangGraph ReAct agent</td></tr>
+        <tr><td>agent design</td><td>every step runs in order for every message</td><td>orchestrator picks tools per turn</td></tr>
+        <tr><td>eligibility</td><td>search first, then filter; LLM-assisted</td><td>deterministic rules over the whole DB, no LLM</td></tr>
+        <tr><td>role of search</td><td>decides which programs get matched</td><td>comparison, FAQ and exploration only</td></tr>
+        <tr><td>user profile</td><td>collected again every session</td><td>stored per session key, injected into the prompt</td></tr>
+        <tr><td>data</td><td>~100 curated Seoul programs</td><td>300+ youth policies from the Youth Policy API, synced daily</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <h2>my part</h2>
   <ul>
@@ -106,6 +130,39 @@
     <li><code>search_policies</code> handles comparison, FAQ and exploration queries through the team's search server. Query rewriting is embedded inside it: as a separate tool, the orchestrator sometimes skipped it, so now it always runs whenever search does.</li>
     <li><code>check_eligibility</code> is a deterministic rule check over the policy database, with no LLM in the path, covering 300+ youth policies synced from the Youth Policy API. Matching no longer depends on search ranking.</li>
   </ul>
+
+  <h3>Key technical decisions</h3>
+  <div class="pairs">
+    <div class="pair">
+      <p><span class="k">finding</span>A fixed pipeline spends LLM calls on simple messages. A "hello" in the MVP still triggered the full extraction → search → response sequence, because the pipeline could not tell intent before committing resources.</p>
+      <p><span class="k">decision 1 · ReAct agent over a fixed pipeline</span>The LangGraph orchestrator reads the conversation and selects tools per turn, skipping extraction when there is nothing to extract and search when the message is a follow-up.</p>
+    </div>
+    <div class="pair">
+      <p><span class="k">finding</span>Search can hide qualifying policies. With matching driven by a top-k vector search, a policy that qualifies but is phrased differently from the query can rank too low to appear, and is excluded without anyone noticing.</p>
+      <p><span class="k">decision 2 · separate matching from search</span>Eligibility runs as a rule check across every policy in the database. Search is kept for comparison, FAQ and exploration, where ranking trade-offs are acceptable.</p>
+    </div>
+    <div class="pair">
+      <p><span class="k">finding</span>The eligibility tool needed the database, but importing the Django ORM into the LLM module tied the tool to the framework and made it untestable without a live database.</p>
+      <p><span class="k">decision 3 · inject the data source</span><code>create_check_eligibility(fetcher)</code> takes a fetcher at construction: the app passes the ORM query, tests pass a stub. Same tool, different data source.</p>
+    </div>
+    <div class="pair">
+      <p><span class="k">finding</span>A standalone query-rewrite tool depended on the orchestrator calling it before search, and it sometimes skipped that step.</p>
+      <p><span class="k">decision 4 · embed rewriting in search</span><code>rewrite_query</code> now runs inside <code>search_policies</code>, so query optimisation happens whenever search does, with no coordination needed.</p>
+    </div>
+    <div class="pair">
+      <p><span class="k">finding</span>With one person on LLM/agent design, design and implementation became a bottleneck when done in sequence.</p>
+      <p><span class="k">decision 5 · split design and implementation across AI tools</span>Claude handled design, review and architectural judgment; Codex handled implementation, tests and pull requests from structured task specs. This parallelised the work but created a cross-checking gap, described under the challenges below.</p>
+    </div>
+  </div>
+
+  <h3>Design goals</h3>
+  <ul>
+    <li><strong>No re-entry.</strong> The agent starts each conversation from the stored profile and asks only for what is missing or out of date.</li>
+    <li><strong>No missed policies.</strong> Eligibility is a deterministic check over the whole database, not a ranking problem, so a qualifying policy surfaces however the user phrases the question.</li>
+    <li><strong>Separate concerns.</strong> Matching and search have different correctness requirements. Keeping them apart makes each testable on its own and keeps search ranking out of eligibility results.</li>
+    <li><strong>Room to grow.</strong> The factory pattern, two-track tests and the separate search server were chosen so that more policies and query types can be added without a redesign.</li>
+  </ul>
+  <p class="own">Stack: Django 5, DRF, PostgreSQL, Next.js · LangGraph ReAct, GPT-4.1-mini, OpenAI embeddings · BM25 (Kiwi tokenizer), Chroma, BGE reranker, RRF over MCP.</p>
   <figure>
     <svg viewBox="0 0 340 412" role="img" aria-label="Phase 2 architecture. Teammates' parts: Next.js frontend, Django REST API with PostgreSQL, the MCP search server and the policy database. My part: the LangGraph ReAct orchestrator on GPT-4.1-mini with the user profile in the system prompt, and its three tools: extract_info, search_policies with embedded query rewriting, and check_eligibility, a rule-only check with no LLM." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
       <defs><marker id="wa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#5C5850"/></marker></defs>
@@ -150,7 +207,9 @@
   <p>Full end-to-end tests, with a real LLM against real tools, are slow, costly and sensitive to API latency, but skipping them risks missing broken contracts between the orchestrator and its tools. So the tests run on two tracks: a real LLM with stub tools on every pull request, which checks orchestration logic and tool-calling contracts cheaply, and a real LLM with real tools on a small set of targeted scenarios. The factory-built eligibility tool is what makes the stub track possible without a database.</p>
 
   <h3>One challenge: names that didn't match</h3>
-  <p>During the orchestrator redesign, field names in the design documents did not match the tools' actual output schemas, for example <code>region</code> vs <code>district</code> and <code>income</code> vs <code>income_level</code>. An LLM review of the documents missed it; a teammate's pull-request review caught it. The fix was a schema-check step in every task spec: before implementing, verify field names against the live tool output schemas. The canonical field dictionary in the orchestrator prompt came out of the same problem.</p>
+  <p>Different team members used different names for the same concepts: <code>interests</code> vs <code>needs</code>, <code>region</code> vs <code>district</code>, <code>income</code> vs <code>income_level</code>. The result was silent mismatches between the profile the agent extracted and the schema the eligibility rules expected.</p>
+  <p>It surfaced during the orchestrator redesign. Claude had reviewed the design documents for consistency and Codex had implemented the tasks, but neither caught that field names in the documents did not match the tools' actual output schemas. A teammate's pull-request review did.</p>
+  <p>Two fixes followed. Every task spec now has a mandatory step to verify field names against the live tool output schemas before implementation. And the orchestrator prompt carries one canonical field-name dictionary, the reference for every tool's inputs and outputs, which code review now checks against. The retrospective also clarified which reviews need human judgment rather than an LLM pass.</p>
 
   <h2>results</h2>
   <p>The agent, its three tools, profile persistence and the two-track test suite are implemented, and the team version is running as a <a href="https://welfare-compass-v2.vercel.app/">live demo</a>.</p>
@@ -165,7 +224,7 @@
   </ul>
 
   <h2>links</h2>
-  <p><a href="https://welfare-compass-v2.vercel.app/">Live demo (phase 2)</a> · <a href="https://github.com/yunaism/welfare-compass">Hackathon code (phase 1)</a></p>
+  <p><a href="https://welfare-compass-v2.vercel.app/">Live demo (phase 2)</a> · <a href="https://github.com/yunaism/welfare-compass">Hackathon code (phase 1)</a> · <a href="https://www.youtube.com/watch?v=TMOHp0wMUXM">Hackathon demo video (YouTube)</a></p>
 </main>
 
 <footer id="contact">
