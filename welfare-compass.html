@@ -31,7 +31,7 @@
   <div class="facts">
     <div><b>Timeline</b>Nov–Dec 2025<span>preliminary + 2-day finals</span></div>
     <div><b>Team</b>4 members</div>
-    <div><b>My role</b>Led ideation<!-- CONFIRM: other role wording. Old page: "Project Lead, UX Research & Design, RAG Pipeline Design". Evidence bank: "developed the core RAG retrieval/generation logic", "implemented the Streamlit MVP". --></div>
+    <div><b>My role</b>Led ideation; designed the LLM flow and prompts; built the Streamlit MVP<!-- CONFIRM: role wording --></div>
     <div><b>Result</b>Seoul AI Hackathon finalist<span>top 20 of 181 teams</span></div>
   </div>
 
@@ -39,7 +39,7 @@
   <p>Seoul offers over 300 welfare programs for its citizens, yet a significant portion of eligible residents never receive the benefits they qualify for. The information is scattered across multiple platforms, buried in complex eligibility criteria, and written in bureaucratic language that's difficult to parse.</p>
   <div class="facts">
     <div><b>86%</b>give up thinking "I'm probably not eligible"<span>Seoul Welfare Survey 2020 (Seoul Open Data Plaza)</span></div>
-    <div><b>About half</b>of eligible people did not receive benefits<span>2021–23, Ministry of Health and Welfare data via the office of Assembly member Nam In-soon</span></div>
+    <div><b>About half</b>of eligible people did not receive benefits<span>2021–23, Ministry of Health and Welfare data compiled by the office of Assembly member Nam In-soon</span></div>
     <div><b>300+</b>Seoul welfare programs across multiple platforms<span>Seoul Open Data Portal · context, not our database size</span></div>
   </div>
   <div class="pairs">
@@ -64,7 +64,7 @@
     </div>
     <div class="pair">
       <p><span class="k">finding · "I tried searching but gave up"</span>Those who did search found information scattered across Seoul Talk, Bokjiro and district office websites with no unified entry point. Most gave up within minutes.</p>
-      <p><span class="k">design decision · unified entry point</span>Instead of sending users across multiple platforms, we consolidated 52 curated Seoul programs into a single database the assistant matches against.<!-- CONFIRM: old page said "~100 curated programs ... with ensemble retrieval (FAISS + BM25)"; the code shows 52 programs and no BM25. Finals submission may differ. --></p>
+      <p><span class="k">design decision · unified entry point</span>Instead of sending users across multiple platforms, we consolidated 52 hand-curated Seoul welfare programs into a single database the assistant matches against.<!-- CONFIRM: pre-finals code; finals count pending --></p>
     </div>
     <div class="pair">
       <p><span class="k">finding · "It's not worth the hassle"</span>Even when participants found a potentially relevant program, complex eligibility criteria and lengthy application forms made the expected effort feel disproportionate to the uncertain benefit.</p>
@@ -74,7 +74,7 @@
   <div class="callout"><p>These findings converged on one insight: the barrier isn't information availability, it's the <strong>effort required to find and process it</strong>. This led us to choose a conversational interface that shifts the burden from user to system.</p></div>
 
   <h2>solution overview</h2>
-  <p>Welfare Compass is a conversational AI agent that extracts user profile information through natural dialogue and matches it against a manually curated welfare policy database. For the hackathon, we curated 52 Seoul welfare programs covering housing, employment, living expenses and education.</p>
+  <p>Welfare Compass is a conversational AI agent that extracts user profile information through natural dialogue and matches it against a manually curated welfare policy database. For the hackathon, we hand-curated 52 Seoul welfare programs covering housing, employment, living expenses and education.<!-- CONFIRM: pre-finals code; finals count pending --></p>
   <p>Instead of requiring users to fill out forms or navigate complex menus, they simply describe their situation: "I'm a 28-year-old freelancer living in Gangnam, looking for housing support." The system automatically extracts relevant attributes and finds matching welfare programs.</p>
   <div class="figs">
     <figure><img src="images/chat1.png" alt="Chat screen in Korean: the user says they are 27 and renting; the sidebar shows the extracted profile and the assistant asks follow-up questions." loading="lazy" width="1274" height="1666"><p class="cap">01 · natural language input with auto-extracted user profile</p></figure>
@@ -85,35 +85,34 @@
 
   <h2>system architecture</h2>
   <p>The pipeline uses LangChain for orchestration. The key insight was that welfare policies are frequently updated, so we needed a system that could incorporate changes through data updates alone, without model retraining.<!-- CONFIRM: old wording was "I designed a RAG-based pipeline"; role wording pending. --></p>
-  <p>Each request takes at most two GPT calls. GPT first extracts the user's profile from the conversation. Rule-based filtering and scoring in pandas then matches that profile against the 52 curated programs. For follow-up questions, FAISS retrieves relevant entries from a set of 362 FAQ entries. A final GPT call writes the response.</p>
-  <!-- CONFIRM: the old page described "ensemble retrieval (FAISS + BM25)" with a BM25 module from a teammate. Neither is in the code; the finals submission may differ. Kept out of the visible text. -->
+  <p>GPT first extracts the user's profile from the conversation. Rule-based filtering and scoring then matches that profile against the 52 curated programs.<!-- CONFIRM: pre-finals code; finals count pending --> For follow-up questions, FAISS retrieves relevant entries from 362 FAQ entries. GPT then writes the response.</p>
+  <p>For the finals submission, a teammate added BM25 + ensemble retrieval.</p>
   <figure>
-    <svg viewBox="0 0 340 300" role="img" aria-label="Phase 1 architecture: the user chats in a Streamlit app; GPT extracts the user profile (call 1); rule-based filtering and scoring in pandas over 52 curated programs; for follow-up questions, FAISS retrieval over 362 FAQ entries; GPT writes the response (call 2). At most two GPT calls per request." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
+    <svg viewBox="0 0 340 284" role="img" aria-label="Phase 1 architecture before the finals: the user chats in a Streamlit app; GPT extracts the user profile; rule-based filtering and scoring over 52 curated programs; for follow-up questions, FAISS retrieval over 362 FAQ entries; GPT writes the response." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
       <defs><marker id="pa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#5C5850"/></marker></defs>
       <g font-family="Geist Mono, monospace" fill="#141414" font-size="11" text-anchor="middle">
         <g fill="#F7F6F3" stroke="#CFCBC2"><rect x="10" y="10" width="320" height="40"/></g>
         <g fill="#FFFFFF" stroke="#141414"><rect x="10" y="66" width="320" height="40"/><rect x="10" y="122" width="320" height="40"/><rect x="10" y="234" width="320" height="40"/></g>
         <rect x="10" y="178" width="320" height="40" fill="#FFFFFF" stroke="#141414" stroke-dasharray="4 3"/>
         <text x="170" y="28">User · Streamlit chat</text><text x="170" y="42" font-size="9" fill="#5C5850">natural-language input</text>
-        <text x="170" y="84">GPT · extract user profile</text><text x="170" y="98" font-size="9" fill="#5C5850">GPT call 1</text>
-        <text x="170" y="140">rule-based filter + score</text><text x="170" y="154" font-size="9" fill="#5C5850">pandas · 52 curated programs</text>
+        <text x="170" y="84">GPT · extract user profile</text><text x="170" y="98" font-size="9" fill="#5C5850">from the conversation</text>
+        <text x="170" y="140">rule-based filter + score</text><text x="170" y="154" font-size="9" fill="#5C5850">52 curated programs</text>
         <text x="170" y="196">FAISS retrieval · 362 FAQ entries</text><text x="170" y="210" font-size="9" fill="#5C5850">for follow-up questions</text>
-        <text x="170" y="252">GPT · response + top program cards</text><text x="170" y="266" font-size="9" fill="#5C5850">GPT call 2</text>
+        <text x="170" y="252">GPT · response + top program cards</text><text x="170" y="266" font-size="9" fill="#5C5850">grounded in matched programs</text>
         <g stroke="#5C5850" fill="none" marker-end="url(#pa)"><path d="M170 50 V64"/><path d="M170 106 V120"/><path d="M170 162 V176"/><path d="M170 218 V232"/></g>
-        <text x="170" y="292" font-size="9" fill="#3A3732">at most 2 GPT calls per request</text>
       </g>
     </svg>
-    <figcaption>System architecture: profile extraction, rule-based matching over 52 programs, FAQ retrieval for follow-ups, and a grounded response.</figcaption>
+    <figcaption>System architecture in the pre-finals code: profile extraction, rule-based matching over the curated programs, FAQ retrieval for follow-ups, and a grounded response.</figcaption>
   </figure>
   <figure>
     <img src="images/welfare-flow-en.svg" alt="Conversation flow: detect intent; in matching mode, extract user information and ask for more if it is insufficient, then match programs and render the top three as cards; in detail mode, answer the question directly; update chat history." loading="lazy">
     <figcaption>Conversation flow: the system detects user intent, extracts profile information through dialogue, and matches against welfare eligibility criteria.</figcaption>
   </figure>
   <h3>Tech stack</h3>
-  <ul class="chips"><li>Python</li><li>LangChain</li><li>pandas</li><li>FAISS</li><li>GPT API</li><li>Streamlit</li></ul>
+  <ul class="chips"><li>Python</li><li>LangChain</li><li>FAISS</li><li>GPT API</li><li>Streamlit</li></ul>
 
   <h2>key challenges &amp; solutions</h2>
-  <!-- CONFIRM: old challenge 1, "Low retrieval accuracy with vector search alone" solved by "a teammate's BM25 module ... hybrid ensemble". BM25 is not in the code; finals submission may differ. Kept out of the visible text. -->
+  <!-- Old challenge 1 ("vector search alone" -> teammate's BM25 ensemble) is covered by the one-line finals note above. -->
   <div class="pairs">
     <div class="pair">
       <p><span class="k">challenge · inconsistent and hard-to-understand responses</span>Early feedback indicated that responses lacked consistency and used technical welfare terminology that users couldn't understand.</p>
@@ -149,35 +148,35 @@
   <div class="facts">
     <div><b>Timeline</b>planned Dec 2025<span>developed Jan–Mar 2026 · in progress</span></div>
     <div><b>Team</b>3 members<span>fullstack/PM · LLM/agent · backend/infra</span></div>
-    <div><b>My role</b>LLM / Agent, prompt engineering<span>reviewed 21 of teammates' 39 PRs</span></div>
+    <div><b>My role</b>LLM / agent and prompt engineering<span>reviewed 21 of teammates' 39 PRs</span></div>
     <div><b>Status</b>team project, in development<span><a href="https://welfare-compass-v2.vercel.app/">live demo</a></span></div>
   </div>
-  <p>A team rebuild of the hackathon prototype: persistent user profiles, rule-based eligibility matching, and a LangGraph ReAct agent for conversational policy guidance.</p>
+  <p>A team rebuild of the hackathon prototype: a LangGraph ReAct agent for conversational policy guidance, rule-based eligibility checks, and user profiles that carry over between sessions (a teammate's signup feature).</p>
 
   <h2>context: why v2?</h2>
   <p>The hackathon result was encouraging, but it was clear that v1 had a fundamental design problem.</p>
   <p>The MVP had no memory: every conversation started from zero. Age, income, employment status were all collected again through conversation. For a service meant to lower barriers to welfare access, requiring repetitive input was a friction we'd designed in.</p>
   <!-- CONFIRM: old page's second observation, "the government's Bokjiro welfare portal ... relied on matching by civil servants manually reviewing applications". Kept out of the visible text until sourced. -->
-  <div class="callout"><p>v2 direction: persistent user profiles with auto-matching, a LangGraph ReAct agent for dynamic query handling, and a full Django + Next.js stack, expanding from Seoul youth toward all citizens.</p></div>
+  <div class="callout"><p>v2 direction: user profiles with auto-matching (cross-session signup profiles are a teammate's feature), a LangGraph ReAct agent for dynamic query handling, and a full Django + Next.js stack, expanding from Seoul youth toward all citizens.</p></div>
 
   <h2>v2 architecture</h2>
-  <p>The core shift from v1 to v2 is replacing a fixed sequential pipeline with a dynamic ReAct agent, and separating the matching and search concerns.</p>
+  <p>The core shift from v1 to v2 is replacing a fixed sequential pipeline with a dynamic ReAct agent, and letting deterministic rules, not retrieval scores, decide eligibility.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th></th><th>v1 · hackathon</th><th>v2 · team version</th></tr></thead>
       <tbody>
         <tr><td>architecture</td><td>Streamlit · fixed sequential pipeline</td><td>Django + Next.js · LangGraph ReAct agent</td></tr>
         <tr><td>agent design</td><td>fixed steps, always executed in order<!-- CONFIRM: old page said "5 nodes" --></td><td>central orchestrator · tools selected dynamically per turn</td></tr>
-        <tr><td>LLM</td><td>GPT API · at most 2 calls per request</td><td>orchestrator GPT-4.1-mini (since Mar 2026, after an A/B comparison) · extraction and query rewriting GPT-4o-mini<!-- CONFIRM: A/B fallback numbers --></td></tr>
-        <tr><td>matching</td><td>rule-based filtering and scoring (pandas) over 52 programs</td><td>rule-based eligibility check, no LLM in the path<!-- CONFIRM: current check_eligibility logic; the full-DB scan path was later removed as a 44 s bottleneck --></td></tr>
-        <tr><td>search role</td><td>FAISS over 362 FAQ entries for follow-up questions</td><td>comparison / FAQ / exploration only</td></tr>
-        <tr><td>tool calls</td><td>—</td><td>duplicate tool calls removed after LangFuse trace review: 5 → 3 tool calls on a test query, ~31 s → ~26 s (PR #58)</td></tr>
-        <tr><td>user profiles</td><td>none, re-collected every session</td><td>persistent profiles, auto-matched at session start<!-- CONFIRM: profile persistence --></td></tr>
-        <tr><td>data</td><td>52 curated Seoul programs</td><td>409 youth policies via the Youth Policy API (Mar 2026); 342 at initial indexing (Jan 2026)<!-- CONFIRM: sync schedule; old page said "daily sync" --></td></tr>
+        <tr><td>LLM</td><td>GPT API</td><td>orchestrator GPT-4.1-mini (from Mar 2026) · extraction and query rewriting GPT-4o-mini</td></tr>
+        <tr><td>matching</td><td>rule-based filtering and scoring over the curated programs</td><td>search returns top-10 candidates; deterministic rules (age, income, region; no LLM) decide eligibility and rank the eligible ones with a rule-based score</td></tr>
+        <tr><td>search role</td><td>FAISS over 362 FAQ entries for follow-up questions</td><td>returns the top-10 candidate policies for the eligibility check</td></tr>
+        <tr><td>tool calls</td><td>—</td><td>duplicate tool calls removed after LangFuse trace review: 5 → 3 tool calls on a test query, ~31 s → ~26 s</td></tr>
+        <tr><td>user info</td><td>none, re-collected every session</td><td>conversation-extracted info stored per session in memory and injected into the system prompt each turn; cross-session signup profiles are a teammate's feature</td></tr>
+        <tr><td>data</td><td>52 curated Seoul programs<!-- CONFIRM: pre-finals code; finals count pending --></td><td>409 youth policies via the Youth Policy API (Mar 2026); 342 at initial indexing (Jan 2026)</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="own">Remaining bottleneck after PR #58: final response generation, 14.3 s of the ~26 s.</p>
+  <p class="own">Remaining bottleneck: final response generation, 14.3 s of the ~26 s.</p>
 
   <h3>Key technical decisions</h3>
   <div class="pairs">
@@ -187,20 +186,25 @@
     </div>
     <div class="pair">
       <p><span class="k">finding · vector search with k=20 could miss qualifying policies</span>With 342 policies in the DB at initial indexing (Jan 2026), a policy that qualifies but ranks semantically low (due to phrasing mismatch) would not appear in the top-20 results, and would be silently excluded from eligibility matching.</p>
-      <p><span class="k">decision 2 · separate matching from search</span>Eligibility matching runs as a rule-based check with no LLM in the path. Search is reserved for comparison queries, FAQ and policy exploration, where ranking trade-offs are acceptable.<!-- CONFIRM: current check_eligibility logic; the full-DB scan path was removed as a 44 s bottleneck --></p>
+      <p><span class="k">decision 2 · rules decide eligibility, not retrieval scores</span><code>search_policies</code> returns top-10 candidates; <code>check_eligibility</code> applies deterministic rules (age, income, region; no LLM) to those candidates and ranks the eligible ones with a rule-based score, not retrieval scores. The candidate limit remains a known limitation (see below).</p>
     </div>
     <div class="pair">
       <p><span class="k">finding · LLM module tightly coupled to Django ORM</span>The eligibility checker needed to query the database, but importing Django ORM directly into the LLM module created framework coupling, making the tool untestable without a live database.</p>
-      <p><span class="k">decision 3 · factory pattern for dependency injection</span><code>create_check_eligibility(fetcher)</code>: the eligibility tool accepts a <code>fetcher</code> function at construction time. The app passes the ORM query; tests pass a stub. Same tool, different data source.<!-- CONFIRM: factory pattern still in the code --></p>
+      <p><span class="k">decision 3 · factory pattern for dependency injection</span>I introduced <code>create_check_eligibility(fetcher)</code> to inject the data source for full-policy matching; that path was later removed as a 44 s latency bottleneck, so the injection now serves testing.</p>
     </div>
     <div class="pair">
       <p><span class="k">finding · a standalone rewrite tool got skipped</span>A standalone rewrite tool relied on the orchestrator calling it before search, which it occasionally skipped.</p>
       <p><span class="k">decision 4 · query rewriting embedded in search_policies</span>Embedding <code>rewrite_query</code> inside <code>search_policies</code> makes query optimisation run unconditionally whenever search is invoked, eliminating the coordination dependency.</p>
     </div>
+    <div class="pair">
+      <p><span class="k">finding · structured output kept failing</span>The orchestrator's responses often failed structured-output parsing.</p>
+      <p><span class="k">decision 5 · switch the orchestrator model</span>Switched the orchestrator to GPT-4.1-mini after a 17-turn, 5-persona test: responses that failed structured-output parsing dropped from 13/17 to 1/17 (single run).</p>
+    </div>
+    <!-- Old decision 5 (Claude + Codex workflow) removed. CONFIRM: pending task_yuna.md check -->
   </div>
 
   <figure>
-    <svg viewBox="0 0 340 412" role="img" aria-label="Phase 2 architecture. Teammates' parts: Next.js frontend, Django REST API with PostgreSQL, the MCP search server and the policy database. My part: the LangGraph ReAct orchestrator on GPT-4.1-mini with the stored user profile in the system prompt, and its three tools: extract_info, search_policies with embedded query rewriting, and check_eligibility, a rule-based check with no LLM." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
+    <svg viewBox="0 0 340 412" role="img" aria-label="Phase 2 architecture. Teammates' parts: Next.js frontend, Django REST API with PostgreSQL, the MCP search server and the policy database. My part: the LangGraph ReAct orchestrator on GPT-4.1-mini with session user info in the system prompt, and its three tools: extract_info, search_policies with embedded query rewriting, which returns top-10 candidates, and check_eligibility, which applies deterministic rules to those candidates with no LLM." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
       <defs><marker id="wa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#5C5850"/></marker></defs>
       <g font-family="Geist Mono, monospace" fill="#141414" font-size="10" text-anchor="middle">
         <g fill="#F7F6F3" stroke="#CFCBC2" stroke-dasharray="3 2">
@@ -219,16 +223,18 @@
         <text x="170" y="84" font-size="11">Django REST API · PostgreSQL</text><text x="170" y="98" font-size="9" fill="#5C5850">teammate</text>
         <text x="170" y="141" font-size="11">LangGraph ReAct orchestrator</text>
         <text x="170" y="156" font-size="9" fill="#3A3732">GPT-4.1-mini · create_react_agent</text>
-        <text x="170" y="169" font-size="9" fill="#3A3732">stored profile in the system prompt</text>
+        <text x="170" y="169" font-size="9" fill="#3A3732">session user info in the system prompt</text>
         <text x="94" y="214">extract_info</text><text x="94" y="228" font-size="9" fill="#3A3732">GPT-4o-mini</text>
         <text x="94" y="275">search_policies</text><text x="94" y="289" font-size="9" fill="#3A3732">+ query rewrite</text>
         <text x="94" y="335">check_eligibility</text><text x="94" y="349" font-size="9" fill="#3A3732">rules, no LLM</text>
+        <text x="66" y="311" font-size="8" fill="#5C5850" text-anchor="start">top-10 candidates</text>
         <text x="257" y="264">MCP search server</text><text x="257" y="278" font-size="9" fill="#5C5850">BM25 (Kiwi) + Chroma</text><text x="257" y="290" font-size="9" fill="#5C5850">BGE rerank · RRF</text><text x="257" y="302" font-size="9" fill="#5C5850">teammate</text>
         <text x="257" y="334">policy DB</text><text x="257" y="348" font-size="9" fill="#5C5850">409 youth policies</text><text x="257" y="362" font-size="9" fill="#5C5850">teammate</text>
         <g stroke="#5C5850" fill="none" marker-end="url(#wa)">
           <path d="M170 50 V64"/><path d="M170 106 V120"/>
           <path d="M14 178 V338"/><path d="M14 216 H22"/><path d="M14 278 H22"/><path d="M14 338 H22"/>
-          <path d="M164 278 H182"/><path d="M164 338 H182"/>
+          <path d="M164 278 H182"/><path d="M257 308 V314"/>
+          <path d="M60 300 V314" stroke-dasharray="2 2"/>
         </g>
         <g text-anchor="start" font-size="9" fill="#3A3732">
           <rect x="10" y="386" width="12" height="10" fill="#FFFFFF" stroke="#2D6A6A" stroke-width="1.5"/><text x="28" y="395">my part</text>
@@ -236,14 +242,14 @@
         </g>
       </g>
     </svg>
-    <figcaption>v2 system architecture. Matching and search are separate paths: check_eligibility applies rules, search_policies serves exploration and FAQ.</figcaption>
+    <figcaption>v2 system architecture. search_policies returns top-10 candidates; check_eligibility applies rules to them. Candidates pass between tools through the orchestrator's output.</figcaption>
   </figure>
   <p class="own">Teammates' work: the MCP search server (BM25 with the Kiwi tokenizer, Chroma, BGE reranker, RRF fusion), the Django backend, the Next.js frontend and the map integration.</p>
 
   <h3>Tech stack</h3>
   <dl class="chips-group">
     <dt>backend</dt><dd><ul class="chips"><li>Django 5</li><li>DRF</li><li>PostgreSQL</li><li>Next.js</li></ul></dd>
-    <dt>AI / agent</dt><dd><ul class="chips"><li>LangGraph ReAct</li><li>GPT-4.1-mini</li><li>GPT-4o-mini</li></ul><!-- CONFIRM: "OpenAI Embeddings" from the old page --></dd>
+    <dt>AI / agent</dt><dd><ul class="chips"><li>LangGraph ReAct</li><li>GPT-4.1-mini</li><li>GPT-4o-mini</li></ul></dd>
     <dt>search</dt><dd><ul class="chips"><li>BM25 (Kiwi tokenizer)</li><li>Chroma</li><li>BGE Reranker</li><li>RRF</li></ul></dd>
     <dt>infra / dev</dt><dd><ul class="chips"><li>MCP</li><li>LangFuse</li><li>Jira</li></ul></dd>
   </dl>
@@ -255,9 +261,10 @@
       <li>LangGraph ReAct agent with orchestrator prompt v2.2</li>
       <li>Tool architecture: <code>extract_info</code>, <code>search_policies</code>, <code>check_eligibility</code>, with <code>rewrite_query</code> embedded in search</li>
       <li>Hybrid search pipeline: BM25 + dense + BGE reranker via the MCP server (teammate)</li>
-      <li>Rule-based eligibility matching with the factory pattern<!-- CONFIRM: current check_eligibility logic and factory pattern --></li>
-      <li>Integration test suite: real LLM + stub tools for contract validation<!-- CONFIRM: two-track tests --></li>
-      <li>Duplicate tool calls removed after LangFuse trace review (PR #58)</li>
+      <li>Rule-based eligibility check over the top-10 search candidates</li>
+      <li>Two-track integration tests: real LLM + stub tools (28 tests) and real LLM + real tools (4), run manually</li>
+      <li>Orchestrator switched to GPT-4.1-mini after a 17-turn, 5-persona test</li>
+      <li>Duplicate tool calls removed after LangFuse trace review</li>
       <li>Backend API, DB migrations, Smart Seoul Map V5 integration (teammates); Next.js frontend base (teammate)</li>
     </ul>
     <h3>In progress <span class="k">as of Mar 2026</span></h3>
@@ -277,32 +284,33 @@
   <h2>v2 challenges</h2>
   <div class="pairs">
     <div class="pair">
-      <p><span class="k">challenge · field names didn't match</span>Different parts of the system used different names for the same concepts: <code>district</code> ↔ <code>residence</code>, and <code>income_level</code> ↔ <code>income</code> + <code>income_raw</code>. The agent's extracted profile and the eligibility rule schema silently disagreed. A teammate caught it in pull-request review (PR #37).</p>
-      <p><span class="k">solution · canonical field names in the orchestrator prompt</span>Established a single canonical field-name dictionary in the orchestrator system prompt, the reference for all tool inputs and outputs. Code review now checks against this dictionary.<!-- CONFIRM: canonical field dictionary --></p>
+      <p><span class="k">challenge · field names didn't match</span>Different parts of the system used different names for the same concepts: <code>district</code> ↔ <code>residence</code>, and <code>income_level</code> ↔ <code>income</code> + <code>income_raw</code>. The agent's extracted profile and the eligibility rule schema silently disagreed. A teammate caught it in pull-request review.</p>
+      <p><span class="k">solution · canonical schema plus alias maps</span>A canonical field schema in the tool specs, plus alias maps in code: policy field aliases, user-info labels, and needs normalisation.</p>
     </div>
     <div class="pair">
       <p><span class="k">challenge · slow answers</span>A test query took about 31 seconds end to end.</p>
-      <p><span class="k">solution · trace review</span>Reviewing LangFuse traces showed duplicate tool calls. Removing them cut the test query from 5 to 3 tool calls and from ~31 s to ~26 s (PR #58). The remaining bottleneck is final response generation, 14.3 s of the 26 s.</p>
+      <p><span class="k">solution · trace review</span>After reviewing LangFuse traces I removed duplicate tool calls: 5 → 3 tool calls on a test query, ~31 s → ~26 s. The remaining bottleneck is final response generation (14.3 s of 26 s).</p>
     </div>
     <div class="pair">
-      <p><span class="k">challenge · test coverage vs infrastructure constraints</span>Full integration tests (real LLM calls against real tools) are slow, expensive and sensitive to API latency. Running them on every commit was impractical, but skipping them risked missing contract-level regressions between the orchestrator and its tools.</p>
-      <p><span class="k">solution · two-track testing</span>Track 1 (<code>integration_orchestrator</code>): real LLM + stub tools, validates orchestrator logic and tool-calling contracts without infrastructure cost, run on every PR. Track 2 (<code>integration_live</code>): real LLM + real tools, kept minimal, run on targeted scenarios before major releases.<!-- CONFIRM: two-track tests --></p>
+      <p><span class="k">challenge · test coverage vs infrastructure constraints</span>Full integration tests (real LLM calls against real tools) are slow, expensive and sensitive to API latency. Running them all the time was impractical, but skipping them risked missing contract-level regressions between the orchestrator and its tools.</p>
+      <p><span class="k">solution · two-track testing</span>Two-track integration tests I wrote: real LLM + stub tools (28 tests, <code>integration_orchestrator</code>), which checks orchestrator logic and tool-calling contracts without infrastructure cost, and real LLM + real tools (4 tests, <code>integration_live</code>). Both are run manually.</p>
     </div>
   </div>
 
   <h2>design goals</h2>
   <p>v1 demonstrated the concept was viable. v2 builds on it with specific design goals that address what the hackathon prototype couldn't.</p>
   <ul>
-    <li><strong>Zero re-entry.</strong> Persistent user profiles mean users never repeat themselves across sessions. The agent starts each conversation from what it already knows, supplementing through dialogue only when information is missing or outdated.<!-- CONFIRM: profile persistence --></li>
-    <li><strong>No missed policies.</strong> Rule-based matching aims for every policy a user qualifies for to surface, regardless of how they phrase their query. Eligibility is a rule check, not a ranking problem.<!-- CONFIRM: depends on current check_eligibility logic --></li>
-    <li><strong>Separation of concerns for reliability.</strong> Matching and search serve different purposes and have different correctness requirements. Keeping them separate makes each independently testable and prevents search ranking trade-offs from affecting eligibility outcomes.</li>
-    <li><strong>Designed for scale.</strong> The factory pattern, two-track testing and the MCP-based search server were chosen to anticipate more policies, more citizen categories and more query types without a redesign.</li>
+    <li><strong>Zero re-entry.</strong> Users shouldn't have to repeat themselves. Cross-session signup profiles are a teammate's feature; my part is the in-session store: conversation-extracted user info is stored per session in memory and injected into the system prompt each turn, so the agent asks only for what is missing.</li>
+    <li><strong>No missed policies.</strong> The goal is for every policy a user qualifies for to surface, regardless of how they phrase their query. Today eligibility is decided by rules rather than retrieval scores, but only over the top-10 search candidates, so this goal is not yet met.</li>
+    <li><strong>Separation of concerns for reliability.</strong> Matching and search have different correctness requirements. Rules decide eligibility and rank the eligible policies; search only supplies candidates. Each part can be tested on its own.</li>
+    <li><strong>Room to grow.</strong> The intent is that the tool interfaces, the two-track tests and the MCP-based search server let the team add policies, citizen categories and query types without a redesign.</li>
   </ul>
 
   <h2>evaluation scope and limitations</h2>
   <ul>
     <li>Correctness is checked by integration tests of the orchestrator and tools. There is no evaluation dataset or user study yet, so there are no claims about answer quality or matching accuracy.</li>
-    <li>The latency figures come from one test query, not a benchmark.</li>
+    <li>Candidates are limited to search top-10 and are passed between tools through LLM output.</li>
+    <li>The latency figures come from one test query, and the model-switch figures from a single run, not a benchmark.</li>
     <li>The agent uses LangGraph's prebuilt ReAct agent rather than a custom graph.</li>
     <li>Phase 2 is a team project in development, not a finished service.</li>
   </ul>
