@@ -31,7 +31,7 @@
   <div class="facts">
     <div><b>Timeline</b>Nov–Dec 2025<span>preliminary + 2-day finals</span></div>
     <div><b>Team</b>4 members</div>
-    <div><b>My role</b>Led ideation; designed the LLM flow and prompts; built the Streamlit MVP<!-- CONFIRM: role wording --></div>
+    <div><b>My role</b>Led ideation and built the initial prototype end to end<span>teammate extended it for the finals</span></div>
     <div><b>Result</b>Seoul AI Hackathon finalist<span>top 20 of 181 teams</span></div>
   </div>
 
@@ -84,7 +84,8 @@
   <p><a href="https://www.youtube.com/watch?v=TMOHp0wMUXM">Watch the hackathon demo video (YouTube) →</a></p>
 
   <h2>system architecture</h2>
-  <p>The pipeline uses LangChain for orchestration. The key insight was that welfare policies are frequently updated, so we needed a system that could incorporate changes through data updates alone, without model retraining.<!-- CONFIRM: old wording was "I designed a RAG-based pipeline"; role wording pending. --></p>
+  <p>The pipeline uses LangChain for orchestration. The key insight was that welfare policies are frequently updated, so we needed a system that could incorporate changes through data updates alone, without model retraining.</p>
+  <p><strong>My part:</strong> Led ideation and built the initial prototype end to end: GPT-based profile extraction, rule-based matching and scoring over the 52 programs, FAISS FAQ retrieval, the prompts and the Streamlit app. A teammate later extended it for the finals submission, including BM25 + ensemble retrieval.</p>
   <p>GPT first extracts the user's profile from the conversation. Rule-based filtering and scoring then matches that profile against the 52 curated programs. For follow-up questions, FAISS retrieves relevant entries from 362 FAQ entries. GPT then writes the response.</p>
   <p>For the finals submission, a teammate added BM25 + ensemble retrieval.</p>
   <figure>
@@ -139,7 +140,7 @@
   <h2>what's next (as planned after the hackathon)</h2>
   <ul>
     <li><strong>Usability testing with real welfare applicants</strong> <span class="own">planned</span>: partnering with community centres or welfare offices to observe how actual target users interact with the system, especially those with lower digital literacy.</li>
-    <li><strong>Retrieval optimisation</strong> <span class="own">partly addressed in phase 2</span>: evaluating chunking strategies, reranking models and hybrid retrieval configurations. Phase 2 added a weighted BM25 + dense ensemble, reused by the team's search server with BGE reranking.</li>
+    <li><strong>Retrieval optimisation</strong> <span class="own">partly addressed in phase 2</span>: evaluating chunking strategies, reranking models and hybrid retrieval configurations. Phase 2 added BM25 + dense retrievers combined with weighted RRF, reused by the team's search server with BGE reranking.</li>
     <li><strong>Full-stack architecture</strong> <span class="own">phase 2</span>: moving from Streamlit to a Django + Next.js stack, widening coverage beyond Seoul youth, and integrating eligibility checks with welfare service APIs.</li>
   </ul>
 
@@ -156,7 +157,6 @@
   <h2>context: why v2?</h2>
   <p>The hackathon result was encouraging, but it was clear that v1 had a fundamental design problem.</p>
   <p>The MVP had no memory: every conversation started from zero. Age, income, employment status were all collected again through conversation. For a service meant to lower barriers to welfare access, requiring repetitive input was a friction we'd designed in.</p>
-  <!-- CONFIRM: old page's second observation, "the government's Bokjiro welfare portal ... relied on matching by civil servants manually reviewing applications". Kept out of the visible text until sourced. -->
   <div class="callout"><p>v2 direction: user profiles with auto-matching (cross-session signup profiles are a teammate's feature), a LangGraph ReAct agent for dynamic query handling, and a full Django + Next.js stack, expanding from Seoul youth toward all citizens.</p></div>
 
   <h2>v2 architecture</h2>
@@ -166,7 +166,7 @@
       <thead><tr><th></th><th>v1 · hackathon</th><th>v2 · team version</th></tr></thead>
       <tbody>
         <tr><td>architecture</td><td>Streamlit · fixed sequential pipeline</td><td>Django + Next.js · LangGraph ReAct agent</td></tr>
-        <tr><td>agent design</td><td>fixed steps, always executed in order<!-- CONFIRM: old page said "5 nodes" --></td><td>central orchestrator · tools selected dynamically per turn</td></tr>
+        <tr><td>agent design</td><td>fixed steps, always executed in order</td><td>central orchestrator · tools selected dynamically per turn</td></tr>
         <tr><td>LLM</td><td>GPT API</td><td>orchestrator GPT-4.1-mini (from Mar 2026) · extraction and query rewriting GPT-4o-mini</td></tr>
         <tr><td>matching</td><td>rule-based filtering and scoring over the curated programs</td><td>search returns top-10 candidates; deterministic rules (age, income, region; no LLM) decide eligibility and rank the eligible ones with a rule-based score</td></tr>
         <tr><td>search role</td><td>FAISS over 362 FAQ entries for follow-up questions</td><td>returns the top-10 candidate policies for the eligibility check</td></tr>
@@ -203,7 +203,7 @@
   </div>
 
   <figure>
-    <svg viewBox="0 0 340 412" role="img" aria-label="Phase 2 architecture. Teammates' parts: Next.js frontend, Django REST API with PostgreSQL, the MCP search server with BGE reranking, and the policy database. My part: the BM25 and Chroma retrievers and their weighted ensemble reused inside the search server, the agent-side MCP adapter, the LangGraph ReAct orchestrator on GPT-4.1-mini with session user info in the system prompt, and its three tools: extract_info, search_policies with embedded query rewriting, which returns top-10 candidates, and check_eligibility, which applies deterministic rules to those candidates with no LLM." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
+    <svg viewBox="0 0 340 412" role="img" aria-label="Phase 2 architecture. Teammates' parts: Next.js frontend, Django REST API with PostgreSQL, the MCP search server with BGE reranking, and the policy database. My part: the BM25 and Chroma retrievers combined with weighted RRF, reused inside the search server, the agent-side MCP adapter, the LangGraph ReAct orchestrator on GPT-4.1-mini with session user info in the system prompt, and its three tools: extract_info, search_policies with embedded query rewriting, which returns top-10 candidates, and check_eligibility, which applies deterministic rules to those candidates with no LLM." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
       <defs><marker id="wa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#5C5850"/></marker></defs>
       <g font-family="Geist Mono, monospace" fill="#141414" font-size="10" text-anchor="middle">
         <g fill="#F7F6F3" stroke="#CFCBC2" stroke-dasharray="3 2">
@@ -227,7 +227,7 @@
         <text x="94" y="275">search_policies</text><text x="94" y="289" font-size="9" fill="#3A3732">+ rewrite · MCP adapter</text>
         <text x="94" y="335">check_eligibility</text><text x="94" y="349" font-size="9" fill="#3A3732">rules, no LLM</text>
         <text x="66" y="311" font-size="8" fill="#5C5850" text-anchor="start">top-10 candidates</text>
-        <text x="257" y="264">MCP search server</text><text x="257" y="278" font-size="9" fill="#2D6A6A">my BM25 (Kiwi) + Chroma</text><text x="257" y="290" font-size="9" fill="#2D6A6A">ensemble 0.4 / 0.6</text><text x="257" y="302" font-size="9" fill="#5C5850">server, rerank: teammate</text>
+        <text x="257" y="264">MCP search server</text><text x="257" y="278" font-size="9" fill="#2D6A6A">my BM25 (Kiwi) + Chroma</text><text x="257" y="290" font-size="9" fill="#2D6A6A">weighted RRF 0.4 / 0.6</text><text x="257" y="302" font-size="9" fill="#5C5850">server, rerank: teammate</text>
         <text x="257" y="334">policy DB</text><text x="257" y="348" font-size="9" fill="#5C5850">409 youth policies</text><text x="257" y="362" font-size="9" fill="#5C5850">teammate</text>
         <g stroke="#5C5850" fill="none" marker-end="url(#wa)">
           <path d="M170 50 V64"/><path d="M170 106 V120"/>
@@ -243,14 +243,14 @@
     </svg>
     <figcaption>v2 system architecture. search_policies returns top-10 candidates; check_eligibility applies rules to them. Candidates pass between tools through the orchestrator's output.</figcaption>
   </figure>
-  <p><strong>My part, retrieval:</strong> built the retrieval components: a BM25 retriever with the Kiwi tokenizer, a Chroma dense retriever (OpenAI embeddings) and a weighted BM25 + dense ensemble (0.4/0.6); the teammate's MCP search server reuses them with BGE reranking. Built the agent-side adapter that calls the MCP server.</p>
+  <p><strong>My part, retrieval:</strong> built the retrieval components: a BM25 retriever with the Kiwi tokenizer, a Chroma dense retriever (OpenAI embeddings) and combined them with weighted RRF (0.4/0.6); the teammate's MCP search server reuses them with BGE reranking. Built the agent-side adapter that calls the MCP server.</p>
   <p class="own">Teammates' work: the MCP search server and its BGE reranking pipeline, the Django backend, the Next.js frontend and the map integration.</p>
 
   <h3>Tech stack</h3>
   <dl class="chips-group">
     <dt>backend</dt><dd><ul class="chips"><li>Django 5</li><li>DRF</li><li>PostgreSQL</li><li>Next.js</li></ul></dd>
     <dt>AI / agent</dt><dd><ul class="chips"><li>LangGraph ReAct</li><li>GPT-4.1-mini</li><li>GPT-4o-mini</li><li>OpenAI embeddings</li></ul></dd>
-    <dt>search</dt><dd><ul class="chips"><li>BM25 (Kiwi tokenizer)</li><li>Chroma</li><li>weighted ensemble (0.4/0.6)</li><li>BGE Reranker</li></ul></dd>
+    <dt>search</dt><dd><ul class="chips"><li>BM25 (Kiwi tokenizer)</li><li>Chroma</li><li>weighted RRF (0.4/0.6)</li><li>BGE Reranker</li></ul></dd>
     <dt>infra / dev</dt><dd><ul class="chips"><li>MCP</li><li>LangFuse</li><li>Jira</li></ul></dd>
   </dl>
 
@@ -260,7 +260,7 @@
     <ul>
       <li>LangGraph ReAct agent with orchestrator prompt v2.2</li>
       <li>Tool architecture: <code>extract_info</code>, <code>search_policies</code>, <code>check_eligibility</code>, with <code>rewrite_query</code> embedded in search</li>
-      <li>Retrieval: BM25 + dense weighted ensemble (mine), reused by the MCP search server with BGE reranking (teammate); agent-side MCP adapter (mine)</li>
+      <li>Retrieval: BM25 + dense retrievers with weighted RRF (mine), reused by the MCP search server with BGE reranking (teammate); agent-side MCP adapter (mine)</li>
       <li>Rule-based eligibility check over the top-10 search candidates</li>
       <li>Two-track integration tests: real LLM + stub tools (28 tests) and real LLM + real tools (4), run manually</li>
       <li>Orchestrator switched to GPT-4.1-mini after a 17-turn, 5-persona test</li>
