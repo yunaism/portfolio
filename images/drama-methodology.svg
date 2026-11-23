@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 260" font-family="Inter, -apple-system, sans-serif">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap');
-  </style>
+    </style>
   <defs>
     <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
       <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.06"/>
@@ -42,8 +41,8 @@
   <circle cx="608" cy="42" r="7.5" fill="#2D6A6A"/>
   <text x="608" y="46" text-anchor="middle" fill="#FFFFFF" font-size="8.5" font-weight="600">3</text>
   <text x="620" y="46" fill="#1F1F1F" font-size="11.5" font-weight="600">Image Selection</text>
-  <text x="620" y="66" fill="#5A5A5A" font-size="10">20 images: character +</text>
-  <text x="620" y="80" fill="#5A5A5A" font-size="10">background per storyline</text>
+  <text x="620" y="66" fill="#5A5A5A" font-size="10">Character + background</text>
+  <text x="620" y="80" fill="#5A5A5A" font-size="10">per storyline → 10 pairs</text>
 
   <!-- ==================== TURN: ③ ↓ ④ (elbow connector) ==================== -->
   <path d="M695,100 L695,130 L135,130 L135,160" stroke="#B5B0AA" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>

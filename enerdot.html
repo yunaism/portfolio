@@ -23,7 +23,7 @@
   <p class="part">My part: Airflow wrapper, availability probe, preprocessing, retraining gate and site mapping. The forecasting framework, including candidate model selection, already existed.</p>
 
   <figure>
-    <svg viewBox="0 0 480 300" role="img" aria-label="Pipeline: KPX API, availability probe every 30 minutes, Bronze and Silver layers, point-in-time features, per-site model selection, retraining gate, fallback to the previous model, model hash logged to MLflow." style="width:100%;height:auto;display:block;border:1px solid var(--rule)">
+    <svg viewBox="0 0 480 300" role="img" aria-label="Pipeline: KPX API, availability probe every 30 minutes, Bronze and Silver layers, point-in-time features, validation-based model selection, retraining gate, fallback to the previous model, model hash logged to MLflow." style="width:100%;height:auto;display:block;border:1px solid var(--rule)">
       <rect width="480" height="300" fill="#FFFFFF"/>
       <g font-family="Geist Mono, monospace" font-size="11" fill="#141414">
         <g stroke="#141414" stroke-width="1" fill="#F7F6F3">
@@ -45,8 +45,8 @@
         <text x="396" y="68" text-anchor="middle" fill="#5C5850" font-size="10">Airflow · MySQL</text>
         <text x="396" y="147" text-anchor="middle">point-in-time</text>
         <text x="396" y="162" text-anchor="middle">features</text>
-        <text x="240" y="147" text-anchor="middle">per-site model</text>
-        <text x="240" y="162" text-anchor="middle">selection</text>
+        <text x="240" y="147" text-anchor="middle">model selection</text>
+        <text x="240" y="162" text-anchor="middle" fill="#5C5850" font-size="10">(validation-based)</text>
         <text x="84" y="147" text-anchor="middle">retraining gate</text>
         <text x="84" y="162" text-anchor="middle" fill="#5C5850" font-size="10">val / train MAE</text>
         <text x="84" y="248" text-anchor="middle" fill="#F7F6F3">pass → new model</text>

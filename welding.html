@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welding defect detection · Yuna Sim</title>
+<meta name="description" content="Welding defect detection using CycleGAN synthetic data and YOLOv5 with two-stage transfer learning. IPIU 2024, first author.">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav aria-label="Main">
+  <a href="./" style="color:var(--muted)">yunasim.dev</a>
+  <div class="links"><a href="./#work">Work</a><a href="./#research">Research</a><a href="./#cv">CV</a><a href="#contact">Contact</a></div>
+</nav>
+
+<main class="article">
+  <p class="meta">Presented at IPIU (Image Processing and Image Understanding), Feb 2024</p>
+  <h1>Welding Defect Detection</h1>
+  <p class="lede">Detecting welding defects using CycleGAN-generated synthetic data and YOLOv5 with two-stage transfer learning, working around the absence of real defect datasets in manufacturing.</p>
+  <div class="facts">
+    <div><b>Timeline</b>2023 – 2024</div>
+    <div><b>Role</b>First author<span>research design &amp; experiments</span></div>
+    <div><b>Advisor</b>Jewon Kang<span>Ewha Womans University</span></div>
+  </div>
+
+  <h2>problem</h2>
+  <p>Welding is a critical manufacturing process where defects can degrade product performance or, in severe cases, cause safety hazards. Traditional inspection relies on visual examination and non-destructive testing, methods that are time-consuming, costly, and highly dependent on the inspector's individual experience and skill.</p>
+  <p>Deep learning offers a path toward automated defect detection, but training such models requires large, high-quality datasets. In welding, this data simply does not exist publicly: real defect images are restricted due to security concerns and the high cost of collecting them on the shop floor.</p>
+  <div class="callout"><p><strong>The core insight:</strong> we couldn't collect the data, so we manufactured it. Rather than waiting for access to restricted real-world defect images, we repurposed publicly available X-ray radiographs, using them as a structural proxy for defect geometry, and used CycleGAN to translate them into the RGB visual domain of actual welding environments. The research contribution isn't just the detection accuracy; it's the design of a data generation pipeline that sidesteps a fundamental access barrier.</p></div>
+  <div class="facts">
+    <div><b>87.5%</b>mAP (IoU 0.5) with two-stage transfer learning<span>+9.1 pp vs no transfer learning · synthetic test set</span></div>
+    <div><b>1,462</b>synthetic training images generated via CycleGAN<span>augmented from 450 base images</span></div>
+    <div><b>3</b>defect types: crack, porosity, spatter<span>from GD-Xray &amp; RIAWELC datasets</span></div>
+  </div>
+
+  <h2>methodology</h2>
+  <p>The core challenge was generating realistic training data without access to real defect images. We designed a pipeline that transforms publicly available X-ray radiographs into RGB welding inspection images, then trains a detection model through progressive domain adaptation.</p>
+  <figure>
+    <img src="images/welding-methodology.svg" alt="Six-step pipeline: 1 data collection from the GD-Xray Welds and RIAWELC radiograph datasets; 2 preprocessing with contrast, median, Gaussian and wavelet filtering; 3 CycleGAN translation from X-ray to RGB for crack, porosity and spatter; 4 split, then augmentation: train 450 to 1,462, test 112 to 318; 5 two-stage transfer learning from COCO to crater and crack datasets to welding defects; 6 detection and evaluation with YOLOv5s." loading="lazy">
+    <figcaption>Pipeline: from public radiographs to detection.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li><h3>Data collection</h3><p>Sourced welding radiograph images from two public datasets: GD-Xray Welds and RIAWELC. These grayscale X-ray images contain labelled defects but differ significantly from the RGB camera images used in actual inspection environments.</p></li>
+    <li><h3>Image preprocessing</h3><p>Applied a four-stage preprocessing pipeline: contrast enhancement to reveal structural details, followed by median filtering (edge-preserving noise removal), Gaussian filtering (overall noise reduction), and wavelet filtering (frequency-level feature refinement). This sequence preserved critical defect features while suppressing artifacts. The sequence was chosen by visual comparison, not measured.</p></li>
+  </ol>
+  <div class="figs keep">
+    <figure><img src="images/preprocessing-original.png" alt="Original grayscale weld radiograph." loading="lazy"><p class="cap">original</p></figure>
+    <figure><img src="images/preprocessing-contrast.png" alt="Radiograph after contrast enhancement." loading="lazy"><p class="cap">contrast</p></figure>
+    <figure><img src="images/preprocessing-gaussian.png" alt="Radiograph after Gaussian filtering." loading="lazy"><p class="cap">Gaussian</p></figure>
+    <figure><img src="images/preprocessing-wavelet.png" alt="Radiograph after wavelet filtering." loading="lazy"><p class="cap">wavelet</p></figure>
+    <figure><img src="images/preprocessing-median.png" alt="Radiograph after median filtering." loading="lazy"><p class="cap">median</p></figure>
+    <figure><img src="images/preprocessing-all.png" alt="Radiograph with all four preprocessing steps applied." loading="lazy"><p class="cap">all applied</p></figure>
+  </div>
+  <p class="own">Effect of each preprocessing stage on a radiograph image. The final image (all applied) combines all four filters and is the input to CycleGAN translation.</p>
+  <ol class="steps" start="3" style="counter-reset:s 2">
+    <li><h3>Synthetic data generation</h3><p>Used CycleGAN to translate preprocessed grayscale radiographs into realistic RGB welding images. Generated three defect classes (crack, porosity and spatter), each reflecting the visual characteristics of real welding defects. CycleGAN's unpaired training capability was key, as no paired radiograph-to-RGB data existed.</p></li>
+  </ol>
+  <div class="figs stack">
+    <figure><img src="images/crack-xray2rgb.png" alt="Crack: X-ray radiograph on the left, CycleGAN-generated RGB image on the right." loading="lazy" width="680" height="346"><p class="cap">crack</p></figure>
+    <figure><img src="images/porosity-xray2rgb.png" alt="Porosity: X-ray radiograph on the left, CycleGAN-generated RGB image on the right." loading="lazy"><p class="cap">porosity</p></figure>
+    <figure><img src="images/spatter-xray2rgb.png" alt="Spatter: X-ray radiograph on the left, CycleGAN-generated RGB image on the right." loading="lazy"><p class="cap">spatter</p></figure>
+  </div>
+  <p class="own">X-ray radiograph (left) → CycleGAN-generated RGB synthetic image (right) for each defect class. Unpaired image translation enables domain adaptation without matched training pairs.</p>
+  <ol class="steps" start="4" style="counter-reset:s 3">
+    <li><h3>Data augmentation</h3><p>The data was split before augmentation. The 450 base training images were augmented to 1,462, and the 112 base test images to 318, to improve generalisation and reduce overfitting risk.</p></li>
+    <li><h3>Two-stage transfer learning</h3><p>Trained YOLOv5s in three phases: (1) pre-training on COCO for general visual features, (2) intermediate fine-tuning on two morphologically analogous datasets, a <em>Lunar Crater</em> dataset whose circular depression shapes closely resemble welding porosity and a <em>Building Defects</em> dataset of concrete and structural cracks that mirror welding crack geometry, and (3) final fine-tuning on our synthetic welding defect data. The strategy exploits cross-domain visual analogy: by finding shapes in non-welding domains that look like welding defects, we give the model a stepping stone between general visual knowledge and welding-specific recognition. This is why two-stage transfer outperforms jumping directly to the target domain.</p></li>
+    <li><h3>Detection &amp; evaluation</h3><p>Evaluated YOLOv5s performance across four training conditions using mAP, precision, recall and F1 score. All images processed at 256×256 resolution on NVIDIA RTX A6000 GPUs.</p></li>
+  </ol>
+  <figure>
+    <img src="images/welding-detection.png" alt="Detections on four synthetic test images. Top row, COCO-only transfer: a spatter region labelled as crack and two low-confidence crack boxes. Bottom row, two-stage transfer: boxes labelled crack, porosity and spatter on the corresponding defects." loading="lazy" width="2000" height="1023">
+    <figcaption>Detection results on synthetic test images: COCO-only transfer learning (top) vs two-stage transfer learning (bottom). The two-stage model labels defects more precisely, with fewer false positives in these examples.</figcaption>
+  </figure>
+  <div class="callout"><p><strong>Design rationale:</strong> two-stage transfer learning bridges the domain gap progressively. COCO provides general visual features, crater/crack datasets introduce defect-like patterns, and the final stage specialises for welding. This staged approach yielded a +9.1 pp mAP improvement over training without transfer learning.</p></div>
+  <h3>Methods &amp; tools</h3>
+  <ul class="chips"><li>CycleGAN</li><li>YOLOv5s</li><li>Transfer learning</li><li>Domain adaptation</li><li>Wavelet filtering</li><li>Data augmentation</li><li>NVIDIA RTX A6000</li></ul>
+
+  <h2>key findings</h2>
+  <p>All metrics are on a held-out set of 318 CycleGAN-generated images, not real welding photographs.</p>
+  <ol class="findings">
+    <li><span class="n">01</span><div><h3>Two-stage transfer learning achieves 87.5% mAP</h3><p>The progressive training strategy (COCO → crater/crack → welding defects) achieved the highest performance across all metrics: 87.5% mAP (IoU 0.5), 90.3% precision, 85.1% recall and 87.6 F1. Single-stage COCO transfer reached 85.2% mAP, crater/crack transfer alone 82.6%, while training from scratch yielded only 78.4%.</p></div></li>
+    <li><span class="n">02</span><div><h3>Preprocessing is critical for synthetic data quality</h3><p>Applying the four-stage preprocessing pipeline before CycleGAN translation produced visibly more realistic synthetic images. Without preprocessing, generated images contained artifacts. The contrast-then-filter sequence preserved defect features while removing noise that confused the generator. This is a qualitative observation: the chain was chosen by visual comparison, not measured.</p></div></li>
+    <li><span class="n">03</span><div><h3>Synthetic data enables training without real defect images</h3><p>By combining CycleGAN domain translation with progressive transfer learning, we trained without real defect photographs; validation on real images was out of scope. The approach could carry over to other industrial domains where real defect data is restricted or prohibitively expensive to collect.</p></div></li>
+  </ol>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>training</th><th class="num">mAP50</th><th class="num">mAP50-95</th><th class="num">P</th><th class="num">R</th><th class="num">F1</th></tr></thead>
+      <tbody>
+        <tr><td>from scratch</td><td class="num">78.4</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+        <tr><td>crater/crack only</td><td class="num">82.6</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+        <tr><td>COCO only</td><td class="num">85.2</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+        <tr class="best"><td>two-stage</td><td class="num">87.5</td><td class="num">58.2</td><td class="num">90.3</td><td class="num">85.1</td><td class="num">87.6</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="own">Percentages. Two-stage = COCO → crater/crack → welding. mAP50 = mAP at IoU 0.5; mAP50-95 = mAP averaged over IoU 0.5–0.95. P = precision, R = recall. – = not reported on the original project page; see the paper.</p>
+
+  <h2>reflection &amp; what's next</h2>
+  <ul>
+    <li><strong>Synthetic data can stand in when real data is inaccessible, so far only on synthetic tests.</strong> CycleGAN combined with careful preprocessing produced training data good enough for 87.5% mAP on the synthetic test set. Whether that carries over to real welds is untested.</li>
+    <li><strong>Progressive transfer learning outperforms single-stage approaches.</strong> The COCO → domain-adjacent → target pipeline consistently beat both direct transfer and training from scratch, suggesting that intermediate domain exposure helps models bridge large domain gaps.</li>
+    <li><strong>Testing on synthetic data alone is a clear limitation.</strong> All evaluation was conducted on CycleGAN-generated images, not real welding photographs. The 318 test images come from 112 base images, so they are not independent samples. Validating with real welding images is the necessary next step. <span class="own">next step, planned</span></li>
+    <li><strong>No ablation for CycleGAN.</strong> No experiment isolates CycleGAN's contribution to the result.</li>
+    <li><strong>Domain expert collaboration is essential, not optional.</strong> Building a defect detection system without input from welding inspectors meant optimising for technical metrics rather than practical utility. Future work should begin with understanding the inspection workflow before designing the model. <span class="own">future work, planned</span></li>
+  </ul>
+
+  <h2>links</h2>
+  <p>Yuna Sim, Jewon Kang. "Welding defect detection using synthetic data and object recognition algorithms." IPIU, Feb 2024.</p>
+</main>
+
+<footer id="contact">
+  <span>Yuna Sim · Berlin</span>
+  <div class="links">
+    <a href="mailto:syna02178@gmail.com">Email</a><a href="https://www.linkedin.com/in/yunasim/">LinkedIn</a><a href="https://github.com/yunaism">GitHub</a><a href="assets/YunaSim_CV.pdf">CV (PDF)</a><a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drama color study · Yuna Sim</title>
+<meta name="description" content="Analysing how Korean drama color grading affects viewer preferences: a cross-cultural comparison of Money Heist and its Korean remake. Journal of the Korean Data Analysis Society, Feb 2025.">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav aria-label="Main">
+  <a href="./" style="color:var(--muted)">yunasim.dev</a>
+  <div class="links"><a href="./#work">Work</a><a href="./#research">Research</a><a href="./#cv">CV</a><a href="#contact">Contact</a></div>
+</nav>
+
+<main class="article">
+  <p class="meta">Published · Journal of the Korean Data Analysis Society · Feb 2025 · <a href="https://doi.org/10.37727/jkdas.2025.27.1.315">view abstract</a></p>
+  <h1>Drama Color Pattern Analysis</h1>
+  <p class="lede">Analysing how Korean drama color grading affects viewer preferences through a cross-cultural comparison of Money Heist and its Korean remake.</p>
+  <div class="facts">
+    <div><b>Timeline</b>2024 – 2025</div>
+    <div><b>Role</b>First author<span>research design &amp; data analysis</span></div>
+    <div><b>Advisor</b>Hoyoung Yoon<span>Ewha Womans University</span></div>
+  </div>
+
+  <h2>research question</h2>
+  <p>Color grading is a defining visual element of Korean dramas, yet previous research had two blind spots: studies either compared color differences between dramas without connecting them to viewer preferences, or measured preferences using artificially manipulated colors detached from real content.</p>
+  <p>This study bridges both approaches. By cross-applying the actual color properties from the Spanish original <em>Money Heist</em> (La Casa de Papel) and its Korean remake <em>Money Heist: Joint Economic Area</em>, we tested whether viewers prefer Korean color grading, and whether that preference stems from the colors themselves or from personal attributes like nationality.</p>
+  <div class="facts">
+    <div><b>52.5% vs 39.7%</b>Korean color grading preferred over the Spanish original<span>pilot survey, n = 86 · t-test, p = 0.046</span><!-- CONFIRM: check against paper; abstract reports ~1.5x --></div>
+    <div><b>86</b>valid survey responses<span>pilot · one undergraduate class</span></div>
+    <div><b>10 pairs</b>20 images: each pair is an original image and its color-swapped version<span>one drama and its remake · character and background scenes</span></div>
+  </div>
+
+  <h2>methodology</h2>
+  <p>The core challenge was creating a fair comparison: how do you isolate the effect of color grading from everything else in a scene? We designed a six-stage pipeline that extracts, measures and cross-applies color properties between the two versions of the same drama.</p>
+  <ol class="steps">
+    <li><h3>Keyframe extraction</h3><p>Extracted keyframes from the Spanish original (season 1, 11 episodes) and Korean remake (part 1, 6 episodes). Removed duplicate compositions via image vector comparison to retain only unique scenes.</p></li>
+    <li><h3>Image clustering</h3><p>Used ConvNeXtLarge (ImageNet-pretrained) to cluster frames by visual similarity across 5 aligned storylines, producing 10 clusters each. This groups scenes by visual features rather than captions or metadata.</p></li>
+    <li><h3>Image selection</h3><p>Selected 1 character scene and 1 background scene per storyline. After the color swap in stage 5 these become 10 pairs (20 images): each pair is an original image and its color-swapped version. Excluded violent or shooting scenes for ethical compliance. Character and background images were separated because prior research shows color functions differently for each.</p></li>
+    <li><h3>Color measurement</h3><p>Extracted dominant colors from each image using CIELAB and HSV color spaces, capturing both perceptual color differences and saturation/brightness characteristics.</p></li>
+    <li><h3>Color cross-application</h3><p>Applied CIELAB L*a*b* values from each drama's color profile onto the other version's images. This means the same scene appears with both Korean and Spanish color grading, isolating color as the only variable.</p></li>
+    <li><h3>Survey &amp; analysis</h3><p>Surveyed 86 participants (valid responses, one undergraduate class) on pairwise color preferences, controlling for OTT subscriptions, prior viewing of both versions, and nationality.</p></li>
+  </ol>
+  <figure>
+    <img src="images/drama-methodology.svg" alt="Six-stage pipeline: 1 keyframe extraction from the Spanish original (season 1, 11 episodes) and the Korean remake (part 1, 6 episodes); 2 image clustering with ConvNeXtLarge, 5 storylines by 10 clusters; 3 selection of a character and a background scene per storyline, which become 10 pairs (20 images) after the color swap; 4 dominant-color measurement in CIELAB and HSV; 5 cross-application of CIELAB values between versions; 6 a pairwise preference survey." loading="lazy">
+    <figcaption>Research pipeline: from keyframe extraction to cross-cultural preference survey.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/drama-color.png" alt="Four scenes, each shown twice: on the left with the Korean remake's color grading, on the right with the Spanish original's grading. The scenes are a house exterior, two characters outside a building, a man on a phone, and a room with a stack of banknotes." loading="lazy" width="1380" height="1518">
+    <figcaption>Survey image examples: Korean remake color (left) vs Spanish original color (right), cross-applied to the same source images.</figcaption>
+  </figure>
+  <div class="callout"><p><strong>Design rationale:</strong> unlike previous studies that artificially shifted RGB values, we cross-applied actual color measurements from each drama using CIELAB coordinates. This preserves the authentic color palette that viewers experience, and ConvNeXtLarge clustering ensures visually comparable image pairs.</p></div>
+  <h3>Methods &amp; tools</h3>
+  <ul class="chips"><li>ConvNeXtLarge</li><li>CIELAB</li><li>HSV analysis</li><li>K-means clustering</li><li>Logistic regression</li><li>User survey (n=86)</li></ul>
+
+  <h2>key findings</h2>
+  <ol class="findings">
+    <li><span class="n">01</span><div><h3>Korean color grading preferred: 52.5% vs 39.7%</h3><!-- CONFIRM: check against paper; abstract reports ~1.5x --><p>Across the full sample, images with Korean drama colors were preferred at 52.5% versus 39.7% for Spanish original colors (t-test, p = 0.046). This held regardless of whether the source image came from the Korean or Spanish version: color grading, not content familiarity, drove preference.</p></div></li>
+    <li><span class="n">02</span><div><h3>Color properties, not personal taste</h3><p>Logit analysis showed that personal attributes (nationality, number of OTT subscriptions, whether participants had watched either version) did not consistently predict color preference. The preference was driven by the color properties of the images themselves.</p></div></li>
+    <li><span class="n">03</span><div><h3>Saturation-based harmony is the key differentiator</h3><p>Korean drama colors are characterised not by high contrast between light and dark, but by saturation-based harmony: colors with similar chroma levels placed together. This finding is consistent with prior Korean-Japanese drama comparisons, suggesting a generalisable pattern in K-content color design.</p></div></li>
+  </ol>
+  <figure>
+    <svg viewBox="0 0 300 300" role="img" aria-label="Six tones measured from the drama frames plotted in the CIELAB a-star b-star plane: five warm tones in the upper right, one teal alone in the lower left." style="width:100%;max-width:320px;height:auto;display:block">
+      <rect x="0.5" y="0.5" width="299" height="299" fill="#FFFFFF" stroke="#CFCBC2"/>
+      <line x1="150" y1="0" x2="150" y2="300" stroke="#E2DED6"/><line x1="0" y1="240" x2="300" y2="240" stroke="#E2DED6"/>
+      <g font-family="Geist Mono, monospace" font-size="10" fill="#5C5850">
+        <text x="294" y="232" text-anchor="end">+a* red</text><text x="6" y="232">−a* green</text>
+        <text x="144" y="14" text-anchor="end">+b* yellow</text><text x="144" y="292" text-anchor="end">−b* blue</text>
+      </g>
+      <circle cx="234" cy="72" r="17" fill="#C8966F"/>
+      <circle cx="180" cy="24" r="17" fill="#C3A165"/>
+      <circle cx="180" cy="120" r="17" fill="#8B7355"/>
+      <circle cx="150" cy="180" r="17" fill="#F3EAD8" stroke="#8F8A80"/>
+      <circle cx="150" cy="240" r="17" fill="#2C2C2C"/>
+      <circle cx="36" cy="276" r="17" fill="#2D6A6A"/>
+    </svg>
+    <figcaption>Six tones measured from the drama frames, on the CIELAB a*b* plane. The teal used across this site is one of them.</figcaption>
+  </figure>
+
+  <h2>reflection &amp; what's next</h2>
+  <ul>
+    <li><strong>Cross-cultural consistency strengthens the finding.</strong> The same saturation-based pattern appeared in Korean-Japanese comparisons by other researchers. Extending this to a Korean-Spanish comparison reinforces that it is a characteristic of K-content color design, not a regional artifact.</li>
+    <li><strong>Pilot scope has clear limits.</strong> With 10 pairs (20 images) from a single drama and 86 valid responses from one undergraduate class, expanding to more titles, diverse demographics, and character-vs-background analysis would strengthen the conclusions. <span class="own">next step, planned</span></li>
+    <li><strong>Emotion is the missing layer.</strong> This study measured preference but not emotional response. Future work should integrate color psychology frameworks to understand <em>why</em> saturation harmony feels more engaging, bridging the gap between visual measurement and user experience. <span class="own">future work, planned</span></li>
+  </ul>
+
+  <h2>links</h2>
+  <p>Yuna Sim, Hoyoung Yoon. "A Preference Analysis of Color: A Pilot Study Comparing the Drama Money Heist Original and Remake Versions." Journal of the Korean Data Analysis Society, Feb 2025. <a href="https://doi.org/10.37727/jkdas.2025.27.1.315">doi.org/10.37727/jkdas.2025.27.1.315</a></p>
+</main>
+
+<footer id="contact">
+  <span>Yuna Sim · Berlin</span>
+  <div class="links">
+    <a href="mailto:syna02178@gmail.com">Email</a><a href="https://www.linkedin.com/in/yunasim/">LinkedIn</a><a href="https://github.com/yunaism">GitHub</a><a href="assets/YunaSim_CV.pdf">CV (PDF)</a><a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
