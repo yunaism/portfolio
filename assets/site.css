@@ -125,7 +125,7 @@ footer .links{display:flex;flex-wrap:wrap;gap:20px}
 .article td.num,.article th.num{text-align:right;font-variant-numeric:tabular-nums}
 .article tr.best td{color:var(--text);font-weight:500}
 /* ownership labels */
-.own{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.own,.article .own{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .own.mine{color:var(--accent)}
 .tile .visual img.shot{object-fit:cover;object-position:top}
 /* old-page components, restyled: highlight box, inline stats, methods lists, roadmap */
