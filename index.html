@@ -130,11 +130,11 @@
       <dt>fixed</dt><dd>Fixed in code; comparisons now verify cache provenance.</dd></dl>
     </div>
     <div class="check">
-      <span class="where">Nota AI</span>
-      <h3>Depth tokens in the wrong order</h3>
-      <dl><dt>found</dt><dd>A reshape grouped neighbouring depth values into one token instead of pairing each cell's depth with its confidence.</dd>
-      <dt>how</dt><dd>Attention and gradient analysis missed it; a simple statistic caught it: both input channels had the same mean.</dd>
-      <dt>fixed</dt><dd>Fixed, with 32 regression tests that place distinct values at every position.</dd></dl>
+      <span class="where">Welfare Compass</span>
+      <h3>Two calls where one would do</h3>
+      <dl><dt>found</dt><dd>A test query took ~31 s. Traces showed extract_info running 3 times and check_eligibility twice for one question.</dd>
+      <dt>how</dt><dd>Read the LangFuse trace step by step instead of timing the whole request.</dd>
+      <dt>fixed</dt><dd>Removed the duplicate calls: 5 → 3 tool calls, ~31 s → ~26 s on that query. The rest is final response generation (14.3 s).</dd></dl>
     </div>
     <div class="check">
       <span class="where">ENERDOT</span>
