@@ -16,7 +16,7 @@
   <div class="links"><a href="./#work">Work</a><a href="./#research">Research</a><a href="./#cv">CV</a><a href="#contact">Contact</a></div>
 </nav>
 
-<main class="article">
+<main class="article case">
   <p class="meta">Presented at IPIU (Image Processing and Image Understanding), Feb 2024</p>
   <h1>Welding Defect Detection</h1>
   <p class="lede">Detecting welding defects using CycleGAN-generated synthetic data and YOLOv5 with two-stage transfer learning, working around the absence of real defect datasets in manufacturing.</p>
@@ -65,7 +65,7 @@
   </div>
   <p class="own">X-ray radiograph (left) → CycleGAN-generated RGB synthetic image (right) for each defect class. Unpaired image translation enables domain adaptation without matched training pairs.</p>
   <ol class="steps" start="4" style="counter-reset:s 3">
-    <li><h3>Data augmentation</h3><p>The data was split before augmentation. The 450 base training images were augmented to 1,462, and the 112 base test images to 318, to improve generalisation and reduce overfitting risk.</p></li>
+    <li><h3>Data augmentation</h3><p>The data was split before augmentation. The 450 base training images were augmented to 1,462 to improve generalisation. The 112 base test images were augmented to 318, so test samples are not independent.</p></li>
     <li><h3>Two-stage transfer learning</h3><p>Trained YOLOv5s in three phases: (1) pre-training on COCO for general visual features, (2) intermediate fine-tuning on two morphologically analogous datasets, a <em>Lunar Crater</em> dataset whose circular depression shapes closely resemble welding porosity and a <em>Building Defects</em> dataset of concrete and structural cracks that mirror welding crack geometry, and (3) final fine-tuning on our synthetic welding defect data. The strategy exploits cross-domain visual analogy: by finding shapes in non-welding domains that look like welding defects, we give the model a stepping stone between general visual knowledge and welding-specific recognition. This is why two-stage transfer outperforms jumping directly to the target domain.</p></li>
     <li><h3>Detection &amp; evaluation</h3><p>Evaluated YOLOv5s performance across four training conditions using mAP, precision, recall and F1 score. All images processed at 256×256 resolution on NVIDIA RTX A6000 GPUs.</p></li>
   </ol>
