@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CatchUp · Yuna Sim</title>
+<meta name="description" content="CatchUp: a solo pipeline that parses PDFs, notebooks and screenshots into one block schema, writes section notes, answers with citations and links concepts across documents, with an evaluation whose measured gains were smaller than run-to-run noise.">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav aria-label="Main">
+  <a href="./" style="color:var(--muted)">yunasim.dev</a>
+  <div class="links"><a href="./#work">Work</a><a href="./#research">Research</a><a href="./#cv">CV</a><a href="#contact">Contact</a></div>
+</nav>
+
+<main class="article case">
+  <p class="meta">Mar–Apr 2026 · solo project · <a href="https://github.com/yunaism/catchup">GitHub</a></p>
+  <h1>CatchUp</h1>
+  <p class="lede">A study-notes pipeline that parses a PDF, a Jupyter notebook and screenshots into one block schema, writes section-based notes, answers questions with citations, and links the same concept across documents.</p>
+  <div class="facts">
+    <div><b>Timeline</b>Mar–Apr 2026</div>
+    <div><b>Role</b>Solo<span>design, build and evaluation</span></div>
+    <div><b>Tests</b>337<span>mostly mocked</span></div>
+  </div>
+
+  <h2>problem</h2>
+  <p>Material for one topic is often spread across formats: a lecture PDF, a notebook with the code, and screenshots. Summarising each document on its own produces notes that don't connect the same concept across a PDF, a notebook and screenshots.</p>
+
+  <h2>what I built</h2>
+  <figure>
+    <svg viewBox="0 0 340 384" role="img" aria-label="CatchUp pipeline. Three parsers: PDF with Docling DocumentConverter, notebook with nbformat, image with a two-call VLM parser and six image classes. All three write a unified block schema. From it: section-based notes with a note-editing chatbot; RAG Q&amp;A with inline citations and plus or minus two neighbour blocks; PDF figure extraction with VLM enrichment and Markdown, PDF and DOCX export; cross-document concept linking by exact canonical match, then embedding similarity of at least 0.75 with LLM relation labels. Underneath: OpenAI embeddings and ChromaDB without LangChain, Langfuse tracing, 337 tests, Docker on Hugging Face Spaces." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
+      <defs><marker id="ca" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#5C5850"/></marker></defs>
+      <g font-family="Geist Mono, monospace" fill="#141414" font-size="10" text-anchor="middle">
+        <g fill="#FFFFFF" stroke="#141414">
+          <rect x="10" y="10" width="100" height="52"/><rect x="120" y="10" width="100" height="52"/><rect x="230" y="10" width="100" height="52"/>
+        </g>
+        <text x="60" y="30" font-size="11">PDF</text><text x="60" y="45" font-size="9" fill="#3A3732">Docling</text><text x="60" y="56" font-size="9" fill="#3A3732">DocumentConverter</text>
+        <text x="170" y="30" font-size="11">notebook</text><text x="170" y="45" font-size="9" fill="#3A3732">nbformat</text>
+        <text x="280" y="30" font-size="11">image</text><text x="280" y="45" font-size="9" fill="#3A3732">VLM · 2 calls</text><text x="280" y="56" font-size="9" fill="#3A3732">6 classes</text>
+        <rect x="10" y="78" width="320" height="40" fill="#FFFFFF" stroke="#2D6A6A" stroke-width="1.5"/>
+        <text x="170" y="96" font-size="11">unified block schema</text><text x="170" y="110" font-size="9" fill="#5C5850">one block format from all three parsers</text>
+        <g fill="#FFFFFF" stroke="#141414">
+          <rect x="24" y="132" width="306" height="40"/><rect x="24" y="182" width="306" height="40"/><rect x="24" y="232" width="306" height="40"/>
+        </g>
+        <rect x="24" y="282" width="306" height="40" fill="#FFFFFF" stroke="#2D6A6A" stroke-width="1.5"/>
+        <text x="177" y="150" font-size="11">section-based notes</text><text x="177" y="164" font-size="9" fill="#3A3732">+ note-editing chatbot</text>
+        <text x="177" y="200" font-size="11">RAG Q&amp;A</text><text x="177" y="214" font-size="9" fill="#3A3732">inline citations · ±2 neighbour blocks</text>
+        <text x="177" y="250" font-size="11">PDF figures + export</text><text x="177" y="264" font-size="9" fill="#3A3732">VLM enrichment · MD / PDF / DOCX</text>
+        <text x="177" y="300" font-size="11">cross-document concept linking</text><text x="177" y="314" font-size="9" fill="#3A3732">exact match, then cos ≥ 0.75 · LLM labels</text>
+        <rect x="10" y="338" width="320" height="36" fill="#F7F6F3" stroke="#CFCBC2" stroke-dasharray="3 2"/>
+        <text x="170" y="353" font-size="9" fill="#3A3732">OpenAI embeddings + ChromaDB, no LangChain</text>
+        <text x="170" y="366" font-size="9" fill="#3A3732">Langfuse · 337 tests · Docker on HF Spaces</text>
+        <g stroke="#5C5850" fill="none" marker-end="url(#ca)">
+          <path d="M60 62 V76"/><path d="M170 62 V76"/><path d="M280 62 V76"/>
+          <path d="M14 152 H22"/><path d="M14 202 H22"/><path d="M14 252 H22"/><path d="M14 302 H22"/>
+        </g>
+        <path d="M14 118 V302" stroke="#5C5850" fill="none"/>
+      </g>
+    </svg>
+    <figcaption>Pipeline: three parsers write one block schema; notes, Q&amp;A, export and concept linking all read from it.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li><h3>Parsers</h3><p>PDFs go through Docling's DocumentConverter and notebooks through nbformat. Images go through a VLM parser that makes two calls per image and sorts images into 6 classes.</p></li>
+    <li><h3>Unified block schema</h3><p>All three parsers write the same block format, so everything downstream works the same way whatever the source document was.</p></li>
+    <li><h3>Notes</h3><p>Section-based note generation over the blocks, plus a chatbot for editing the generated notes.</p></li>
+    <li><h3>RAG Q&amp;A</h3><p>Answers carry inline citations to the source blocks. Each retrieved block is expanded with ±2 neighbouring blocks for context. Retrieval uses OpenAI embeddings and ChromaDB directly, without LangChain.</p></li>
+    <li><h3>Figures and export</h3><p>Figures are extracted from PDFs and enriched with a VLM description. Notes export to Markdown, PDF and DOCX.</p></li>
+    <li><h3>Cross-document concept linking</h3><p>Concepts are linked first by exact canonical-name match, then by embedding similarity of at least 0.75, with an LLM labelling the relation between the two concepts.</p></li>
+  </ol>
+  <p>Calls are traced in Langfuse. The 337 tests are mostly mocked. The app is deployed with Docker to Hugging Face Spaces.</p>
+  <h3>Stack</h3>
+  <ul class="chips"><li>Python</li><li>Docling</li><li>nbformat</li><li>VLM</li><li>OpenAI embeddings</li><li>ChromaDB</li><li>Langfuse</li><li>DeepEval</li><li>Docker</li><li>Hugging Face Spaces</li></ul>
+
+  <h2>evaluation</h2>
+  <h3 class="headline">Gains smaller than the noise</h3>
+  <div class="facts">
+    <div><b>10 docs · 31 questions</b>golden set</div>
+    <div><b>4 metrics</b>DeepEval<span>gpt-4o as judge</span></div>
+    <div><b>Single runs</b>per configuration</div>
+  </div>
+  <p>When I re-checked the results, the same baseline configuration scored differently from round to round: its overall score varied by 0.066. That is larger than every gain I measured, so none of the comparisons below can be read as a real improvement.</p>
+  <figure>
+    <svg viewBox="0 0 340 170" role="img" aria-label="Bar chart of overall-score differences. Run-to-run variation of the same baseline: 0.066. Query rewrite gain: 0.033. Spread across chunk sizes 300 to 1000: 0.015. Both measured effects are smaller than the baseline's own variation." style="width:100%;max-width:520px;height:auto;display:block;background:#FFFFFF;border:1px solid var(--rule)">
+      <g font-family="Geist Mono, monospace" font-size="10" fill="#141414">
+        <text x="12" y="26">same baseline, across rounds</text>
+        <rect x="12" y="32" width="264" height="16" fill="#CFCBC2"/><text x="282" y="44">0.066</text>
+        <text x="12" y="76">query rewrite gain</text>
+        <rect x="12" y="82" width="132" height="16" fill="#2D6A6A"/><text x="150" y="94">+0.033</text>
+        <text x="12" y="126">chunk size 300–1000, spread</text>
+        <rect x="12" y="132" width="60" height="16" fill="#2D6A6A"/><text x="78" y="144">0.015</text>
+        <line x1="276" y1="20" x2="276" y2="156" stroke="#5C5850" stroke-dasharray="3 3"/>
+      </g>
+    </svg>
+    <figcaption>Overall-score differences. The dashed line is the baseline's own run-to-run variation; both measured effects fall inside it.</figcaption>
+  </figure>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>experiment</th><th>result</th><th>reading</th></tr></thead>
+      <tbody>
+        <tr><td>query rewrite</td><td>overall 0.638 → 0.671 · Wilcoxon p = 0.57 · faithfulness 0.995 → 0.957</td><td>within noise; faithfulness fell</td></tr>
+        <tr><td>chunk size 300–1000</td><td>overall spread 0.015</td><td>500 is a default, not a proven optimum</td></tr>
+        <tr><td>image resize</td><td>adaptive: input tokens −8%, cost −4%</td><td>slower, and JSON parse success dropped on code screenshots</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ol class="findings">
+    <li><span class="n">01</span><div><h3>Query rewrite helped some queries and hurt others</h3><p>It helped some colloquial Korean queries: for "커밋로그 보는 방법" ("how to view the commit log"), the git-log section moved to rank 1. Other queries got worse, the overall gain was not significant (p = 0.57), and faithfulness fell from 0.995 to 0.957. This eval ran on the chunked index, not the app's block index.</p></div></li>
+    <li><span class="n">02</span><div><h3>Chunk size barely mattered</h3><p>Across chunk sizes from 300 to 1000, the overall score spread was 0.015, far inside the baseline's variation. 500 stays as a default, not as a proven optimum.</p></div></li>
+    <li><span class="n">03</span><div><h3>Smaller images were cheaper, not better</h3><p>Adaptive image resizing cut input tokens by 8% and cost by 4%, but it was slower and JSON parse success dropped on code screenshots.</p></div></li>
+  </ol>
+
+  <h2>limitations</h2>
+  <ul>
+    <li>Small n: 10 documents and 31 questions.</li>
+    <li>Single runs per configuration, while the baseline alone varied by 0.066 across rounds.</li>
+    <li>No human labels beyond 7 tagged queries.</li>
+    <li>The VLM model comparison was not run.</li>
+    <li>Edge cases are documented but mostly unhandled.</li>
+  </ul>
+
+  <h2>links</h2>
+  <p><a href="https://github.com/yunaism/catchup">GitHub repository</a></p>
+</main>
+
+<footer id="contact">
+  <span>Yuna Sim · Berlin</span>
+  <div class="links">
+    <a href="mailto:syna02178@gmail.com">Email</a><a href="https://www.linkedin.com/in/yunasim/">LinkedIn</a><a href="https://github.com/yunaism">GitHub</a><a href="assets/YunaSim_CV.pdf">CV (PDF)</a><a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
